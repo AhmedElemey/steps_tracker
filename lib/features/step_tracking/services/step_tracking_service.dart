@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../core/database/database_helper.dart';
+import '../../../core/services/firebase_service.dart';
 import '../models/step_data.dart';
+import '../../steps/services/steps_service.dart';
 
 class StepTrackingService {
   static final StepTrackingService _instance = StepTrackingService._internal();
@@ -10,6 +12,8 @@ class StepTrackingService {
   StepTrackingService._internal();
 
   final DatabaseHelper _databaseHelper = DatabaseHelper();
+  final FirebaseService _firebaseService = FirebaseService();
+  final StepsService _stepsService = StepsService();
   StreamSubscription<StepCount>? _stepCountStream;
   StreamSubscription<PedestrianStatus>? _pedestrianStatusStream;
   
@@ -98,8 +102,13 @@ class StepTrackingService {
     // Emit to stream
     _stepsController.add(_currentSteps);
     
-    // Save to database
+    // Save to local database
     _saveStepData();
+    
+    // Save to Firestore if user is signed in
+    if (_firebaseService.isSignedIn) {
+      _stepsService.addStepsEntry(_currentSteps);
+    }
   }
 
   void _onStepCountError(error) {

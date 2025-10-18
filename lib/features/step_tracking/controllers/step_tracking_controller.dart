@@ -4,10 +4,12 @@ import 'package:pedometer/pedometer.dart';
 import '../models/step_data.dart';
 import '../services/step_tracking_service.dart';
 import '../../goals/services/goals_service.dart';
+import '../../steps/services/steps_service.dart';
 
 class StepTrackingController extends ChangeNotifier {
   final StepTrackingService _stepTrackingService = StepTrackingService();
   final GoalsService _goalsService = GoalsService();
+  final StepsService _stepsService = StepsService();
 
   int _currentSteps = 0;
   int _targetSteps = 10000;
@@ -67,6 +69,9 @@ class StepTrackingController extends ChangeNotifier {
     _currentSteps = steps;
     _updateProgress();
     notifyListeners();
+    
+    // Save to Firestore every 100 steps or every 5 minutes
+    _saveStepsToFirestore();
   }
 
   void _onStatusUpdate(PedestrianStatus status) {
@@ -104,7 +109,7 @@ class StepTrackingController extends ChangeNotifier {
         _updateProgress();
       }
     } catch (e) {
-      print('Error loading target steps: $e');
+      debugPrint('Error loading target steps: $e');
       _targetSteps = 10000; // Default fallback
       _updateProgress();
     }
@@ -115,7 +120,7 @@ class StepTrackingController extends ChangeNotifier {
       _stepHistory = await _stepTrackingService.getStepHistory(days: 7);
       notifyListeners();
     } catch (e) {
-      print('Error loading step history: $e');
+      debugPrint('Error loading step history: $e');
     }
   }
 
@@ -140,6 +145,22 @@ class StepTrackingController extends ChangeNotifier {
     } catch (e) {
       _errorMessage = 'Failed to stop tracking: $e';
       notifyListeners();
+    }
+  }
+
+  DateTime? _lastFirestoreSave;
+  int _lastSavedSteps = 0;
+
+  void _saveStepsToFirestore() {
+    final now = DateTime.now();
+    final shouldSave = _lastFirestoreSave == null ||
+        now.difference(_lastFirestoreSave!).inMinutes >= 5 ||
+        (_currentSteps - _lastSavedSteps) >= 100;
+
+    if (shouldSave) {
+      _stepsService.addStepsEntry(_currentSteps);
+      _lastFirestoreSave = now;
+      _lastSavedSteps = _currentSteps;
     }
   }
 

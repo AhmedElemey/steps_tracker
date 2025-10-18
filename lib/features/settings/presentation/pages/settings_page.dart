@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../step_tracking/controllers/step_tracking_controller.dart';
+import '../../../auth/controllers/auth_controller.dart';
+import '../../../../core/controllers/theme_controller.dart';
+import '../../../../core/services/localization_service.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -17,7 +20,7 @@ class _SettingsPageState extends State<SettingsPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final controller = context.read<StepTrackingController>();
-      _targetController.text = (controller.targetSteps ?? 10000).toString();
+      _targetController.text = controller.targetSteps.toString();
     });
   }
 
@@ -138,6 +141,169 @@ class _SettingsPageState extends State<SettingsPage> {
                             child: const Text('Update'),
                           ),
                         ],
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Theme Section
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.dark_mode,
+                            color: const Color(0xFF2E7D32),
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Appearance',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Consumer<ThemeController>(
+                        builder: (context, themeController, child) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Dark Mode',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Switch(
+                                value: themeController.isDarkMode,
+                                onChanged: (value) {
+                                  themeController.toggleTheme();
+                                },
+                                activeColor: const Color(0xFF2E7D32),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      Consumer<LocalizationService>(
+                        builder: (context, localizationService, child) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Language',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    localizationService.locale.languageCode == 'en' ? 'English' : 'العربية',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Color(0xFF2E7D32),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Switch(
+                                    value: localizationService.locale.languageCode == 'ar',
+                                    onChanged: (value) {
+                                      localizationService.toggleLanguage();
+                                    },
+                                    activeColor: const Color(0xFF2E7D32),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
+                // Account Section
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.account_circle,
+                            color: const Color(0xFF2E7D32),
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Account',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Consumer<AuthController>(
+                        builder: (context, authController, child) {
+                          return Column(
+                            children: [
+                              if (authController.userProfile != null) ...[
+                                _buildInfoRow('Name', authController.userProfile!.name),
+                                _buildInfoRow('Weight', '${authController.userProfile!.weight.toStringAsFixed(1)} kg'),
+                              ],
+                              const SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: () => _showSignOutDialog(context),
+                                icon: const Icon(Icons.logout),
+                                label: const Text('Sign Out'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -291,6 +457,36 @@ class _SettingsPageState extends State<SettingsPage> {
     return steps.toString().replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (Match m) => '${m[1]},',
+    );
+  }
+
+  void _showSignOutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final authController = context.read<AuthController>();
+              await authController.signOut();
+              if (context.mounted) {
+                Navigator.of(context).pushReplacementNamed('/auth');
+              }
+            },
+            child: const Text(
+              'Sign Out',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,20 +1,40 @@
+enum GoalType {
+  steps,
+  weight,
+  distance,
+}
+
+enum GoalStatus {
+  active,
+  completed,
+  paused,
+}
+
 class Goal {
-  final int id;
-  final String name;
-  final int targetSteps;
+  final String id;
+  final String userId;
+  final GoalType type;
+  final String title;
+  final String description;
+  final double targetValue;
+  final double currentValue;
   final DateTime startDate;
-  final DateTime? endDate;
-  final bool isActive;
+  final DateTime endDate;
+  final GoalStatus status;
   final DateTime createdAt;
   final DateTime updatedAt;
 
   Goal({
     required this.id,
-    required this.name,
-    required this.targetSteps,
+    required this.userId,
+    required this.type,
+    required this.title,
+    required this.description,
+    required this.targetValue,
+    required this.currentValue,
     required this.startDate,
-    this.endDate,
-    required this.isActive,
+    required this.endDate,
+    required this.status,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -22,53 +42,82 @@ class Goal {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'name': name,
-      'target_steps': targetSteps,
-      'start_date': startDate.toIso8601String(),
-      'end_date': endDate?.toIso8601String(),
-      'is_active': isActive ? 1 : 0,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      'userId': userId,
+      'type': type.name,
+      'title': title,
+      'description': description,
+      'targetValue': targetValue,
+      'currentValue': currentValue,
+      'startDate': startDate.toIso8601String(),
+      'endDate': endDate.toIso8601String(),
+      'status': status.name,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 
   factory Goal.fromMap(Map<String, dynamic> map) {
     return Goal(
-      id: map['id'] ?? 0,
-      name: map['name'] ?? 'Daily Goal',
-      targetSteps: map['target_steps'] ?? 10000,
-      startDate: DateTime.parse(map['start_date']),
-      endDate: map['end_date'] != null ? DateTime.parse(map['end_date']) : null,
-      isActive: (map['is_active'] ?? 1) == 1,
-      createdAt: DateTime.parse(map['created_at']),
-      updatedAt: DateTime.parse(map['updated_at']),
+      id: map['id'] ?? '',
+      userId: map['userId'] ?? '',
+      type: GoalType.values.firstWhere(
+        (e) => e.name == map['type'],
+        orElse: () => GoalType.steps,
+      ),
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
+      targetValue: map['targetValue']?.toDouble() ?? 0.0,
+      currentValue: map['currentValue']?.toDouble() ?? 0.0,
+      startDate: DateTime.parse(map['startDate']),
+      endDate: DateTime.parse(map['endDate']),
+      status: GoalStatus.values.firstWhere(
+        (e) => e.name == map['status'],
+        orElse: () => GoalStatus.active,
+      ),
+      createdAt: DateTime.parse(map['createdAt']),
+      updatedAt: DateTime.parse(map['updatedAt']),
     );
   }
 
   Goal copyWith({
-    int? id,
-    String? name,
-    int? targetSteps,
+    String? id,
+    String? userId,
+    GoalType? type,
+    String? title,
+    String? description,
+    double? targetValue,
+    double? currentValue,
     DateTime? startDate,
     DateTime? endDate,
-    bool? isActive,
+    GoalStatus? status,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
     return Goal(
       id: id ?? this.id,
-      name: name ?? this.name,
-      targetSteps: targetSteps ?? this.targetSteps,
+      userId: userId ?? this.userId,
+      type: type ?? this.type,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      targetValue: targetValue ?? this.targetValue,
+      currentValue: currentValue ?? this.currentValue,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
-      isActive: isActive ?? this.isActive,
+      status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
+  double get progressPercentage {
+    if (targetValue == 0) return 0.0;
+    return (currentValue / targetValue * 100).clamp(0.0, 100.0);
+  }
+
+  bool get isCompleted => status == GoalStatus.completed || currentValue >= targetValue;
+
   @override
   String toString() {
-    return 'Goal(id: $id, name: $name, targetSteps: $targetSteps, isActive: $isActive)';
+    return 'Goal(id: $id, title: $title, type: $type, progress: ${progressPercentage.toStringAsFixed(1)}%)';
   }
 }
