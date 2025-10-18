@@ -50,28 +50,28 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    appId: '1:123456789012:android:abcdef1234567890abcdef',
-    messagingSenderId: '123456789012',
-    projectId: 'steps-tracker-app',
-    storageBucket: 'steps-tracker-app.appspot.com',
+    apiKey: 'AIzaSyAW7_hdiCYkKNOpqYtMcwgtn91vseUYkuc',
+    appId: '1:1961490031:android:caa803ff7ffb24b676bf9a',
+    messagingSenderId: '1961490031',
+    projectId: 'steps-tracker-1760794907',
+    storageBucket: 'steps-tracker-1760794907.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    appId: '1:123456789012:ios:abcdef1234567890abcdef',
-    messagingSenderId: '123456789012',
-    projectId: 'steps-tracker-app',
-    storageBucket: 'steps-tracker-app.appspot.com',
+    apiKey: 'AIzaSyA5I5vESoFSTHy_M-I79ttfj5fP7o6jHkk',
+    appId: '1:1961490031:ios:3d0ff12bc8ee295276bf9a',
+    messagingSenderId: '1961490031',
+    projectId: 'steps-tracker-1760794907',
+    storageBucket: 'steps-tracker-1760794907.firebasestorage.app',
     iosBundleId: 'com.example.stepsTracker',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
-    appId: '1:123456789012:ios:abcdef1234567890abcdef',
-    messagingSenderId: '123456789012',
-    projectId: 'steps-tracker-app',
-    storageBucket: 'steps-tracker-app.appspot.com',
+    apiKey: 'AIzaSyA5I5vESoFSTHy_M-I79ttfj5fP7o6jHkk',
+    appId: '1:1961490031:ios:3d0ff12bc8ee295276bf9a',
+    messagingSenderId: '1961490031',
+    projectId: 'steps-tracker-1760794907',
+    storageBucket: 'steps-tracker-1760794907.firebasestorage.app',
     iosBundleId: 'com.example.stepsTracker',
   );
 
