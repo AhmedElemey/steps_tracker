@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -67,6 +68,11 @@ class StepsTrackerApp extends StatelessWidget {
             ),
             themeMode: themeController.themeMode,
             locale: localizationService.locale,
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
             supportedLocales: const [
               Locale('en', 'US'),
               Locale('ar', 'SA'),
@@ -126,6 +132,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Scaffold(
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -136,9 +145,9 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.white,
-        selectedItemColor: const Color(0xFF2E7D32),
-        unselectedItemColor: Colors.grey,
+        backgroundColor: colorScheme.surface,
+        selectedItemColor: colorScheme.primary,
+        unselectedItemColor: colorScheme.onSurface.withOpacity(0.6),
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),

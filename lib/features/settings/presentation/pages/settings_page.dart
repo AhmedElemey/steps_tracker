@@ -32,8 +32,11 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: const Text(
           'Settings',
@@ -42,7 +45,7 @@ class _SettingsPageState extends State<SettingsPage> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: const Color(0xFF2E7D32),
+        backgroundColor: colorScheme.primary,
         elevation: 0,
       ),
       body: Consumer<StepTrackingController>(
@@ -56,11 +59,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: colorScheme.shadow.withOpacity(0.1),
                         spreadRadius: 1,
                         blurRadius: 10,
                         offset: const Offset(0, 2),
@@ -74,7 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: [
                           Icon(
                             Icons.flag,
-                            color: const Color(0xFF2E7D32),
+                            color: colorScheme.primary,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
@@ -91,7 +94,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       Text(
                         'Set your daily step target',
                         style: TextStyle(
-                          color: Colors.grey.shade600,
+                          color: colorScheme.onSurface.withOpacity(0.7),
                           fontSize: 14,
                         ),
                       ),
@@ -134,8 +137,8 @@ class _SettingsPageState extends State<SettingsPage> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF2E7D32),
-                              foregroundColor: Colors.white,
+                              backgroundColor: colorScheme.primary,
+                              foregroundColor: colorScheme.onPrimary,
                               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                             ),
                             child: const Text('Update'),
@@ -152,11 +155,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: colorScheme.shadow.withOpacity(0.1),
                         spreadRadius: 1,
                         blurRadius: 10,
                         offset: const Offset(0, 2),
@@ -170,7 +173,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: [
                           Icon(
                             Icons.dark_mode,
-                            color: const Color(0xFF2E7D32),
+                            color: colorScheme.primary,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
@@ -200,7 +203,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 onChanged: (value) {
                                   themeController.toggleTheme();
                                 },
-                                activeColor: const Color(0xFF2E7D32),
+                                activeColor: colorScheme.primary,
                               ),
                             ],
                           );
@@ -222,9 +225,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                 children: [
                                   Text(
                                     localizationService.locale.languageCode == 'en' ? 'English' : 'العربية',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 14,
-                                      color: Color(0xFF2E7D32),
+                                      color: colorScheme.primary,
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -233,7 +236,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     onChanged: (value) {
                                       localizationService.toggleLanguage();
                                     },
-                                    activeColor: const Color(0xFF2E7D32),
+                                    activeColor: colorScheme.primary,
                                   ),
                                 ],
                               ),
@@ -251,11 +254,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: colorScheme.shadow.withOpacity(0.1),
                         spreadRadius: 1,
                         blurRadius: 10,
                         offset: const Offset(0, 2),
@@ -269,7 +272,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: [
                           Icon(
                             Icons.account_circle,
-                            color: const Color(0xFF2E7D32),
+                            color: colorScheme.primary,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
@@ -315,11 +318,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surfaceContainer,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: colorScheme.shadow.withOpacity(0.1),
                         spreadRadius: 1,
                         blurRadius: 10,
                         offset: const Offset(0, 2),
@@ -333,7 +336,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: [
                           Icon(
                             Icons.info_outline,
-                            color: const Color(0xFF2E7D32),
+                            color: colorScheme.primary,
                             size: 24,
                           ),
                           const SizedBox(width: 12),
