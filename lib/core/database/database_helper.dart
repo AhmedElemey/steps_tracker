@@ -77,7 +77,10 @@ class DatabaseHelper {
   // Step Data Methods
   Future<int> insertStepData(StepData stepData) async {
     final db = await database;
-    return await db.insert('step_data', stepData.toMap());
+    final map = stepData.toMap();
+    // Remove id from map for new inserts to let SQLite auto-generate it
+    map.remove('id');
+    return await db.insert('step_data', map);
   }
 
   Future<int> updateStepData(StepData stepData) async {

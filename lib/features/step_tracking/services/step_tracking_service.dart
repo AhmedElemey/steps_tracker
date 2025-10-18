@@ -147,7 +147,7 @@ class StepTrackingService {
     final calories = (_currentSteps * caloriesPerStep).round();
 
     final stepData = StepData(
-      id: existingData?.id ?? 0,
+      id: existingData?.id ?? -1, // Use -1 for new records, will be removed during insert
       date: today,
       steps: _currentSteps,
       distance: distance,
