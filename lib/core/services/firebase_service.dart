@@ -17,7 +17,7 @@ class FirebaseService {
   bool get isSignedIn => currentUser != null;
 
   Future<void> initialize() async {
-    await Firebase.initializeApp();
+    // Firebase is already initialized in main.dart with proper options
     _configureFirestore();
   }
 
