@@ -144,4 +144,10 @@ class AuthController extends ChangeNotifier {
     _errorMessage = '';
     notifyListeners();
   }
+
+  /// Update user profile in the controller
+  void updateUserProfile(UserProfile profile) {
+    _userProfile = profile;
+    notifyListeners();
+  }
 }

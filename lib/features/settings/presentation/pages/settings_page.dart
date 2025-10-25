@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../step_tracking/controllers/step_tracking_controller.dart';
 import '../../../auth/controllers/auth_controller.dart';
+import '../../../profile/widgets/image_picker_widget.dart';
 import '../../../../core/controllers/theme_controller.dart';
 import '../../../../core/services/localization_service.dart';
+import '../../../../core/services/firebase_storage_test.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -290,11 +292,46 @@ class _SettingsPageState extends State<SettingsPage> {
                         builder: (context, authController, child) {
                           return Column(
                             children: [
+                              // Profile Image Section
                               if (authController.userProfile != null) ...[
+                                Center(
+                                  child: ImagePickerWidget(
+                                    userProfile: authController.userProfile,
+                                    size: 100,
+                                    onImageUpdated: (updatedProfile) {
+                                      if (updatedProfile != null) {
+                                        // Update the auth controller with the new profile
+                                        authController.updateUserProfile(updatedProfile);
+                                      }
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
                                 _buildInfoRow('Name', authController.userProfile!.name, context),
                                 _buildInfoRow('Weight', '${authController.userProfile!.weight.toStringAsFixed(1)} kg', context),
                               ],
                               const SizedBox(height: 16),
+                              // Storage Test Button (temporary for debugging)
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  await FirebaseStorageTest.runStorageTest();
+                                  if (mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Storage test completed. Check debug console for results.'),
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
+                                  }
+                                },
+                                icon: const Icon(Icons.storage),
+                                label: const Text('Test Storage'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
                               ElevatedButton.icon(
                                 onPressed: () => _showSignOutDialog(context),
                                 icon: const Icon(Icons.logout),

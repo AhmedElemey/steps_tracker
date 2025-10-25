@@ -91,13 +91,22 @@ service cloud.firestore {
 }
 ```
 
-### Storage Rules (if using storage)
+### Storage Rules (for profile images)
 ```javascript
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    // User profile images - users can only access their own images
     match /user_profiles/{userId}/{allPaths=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Additional security: validate file types and sizes
+    match /user_profiles/{userId}/{fileName} {
+      allow write: if request.auth != null 
+        && request.auth.uid == userId
+        && resource.contentType.matches('image/.*')
+        && resource.size < 10 * 1024 * 1024; // 10MB limit
     }
   }
 }

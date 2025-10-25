@@ -57,6 +57,10 @@ void onStart(dynamic service) async {
   // Background service temporarily disabled
   debugPrint('Background service onStart skipped');
   return;
+  
+  // Note: The following code is unreachable due to the return statement above
+  // but is kept for future implementation
+  /*
   // Initialize step detection variables
   int stepCount = 0;
   DateTime? lastStepTime;
@@ -153,6 +157,7 @@ void onStart(dynamic service) async {
   } catch (e) {
     debugPrint('Error starting accelerometer monitoring: $e');
   }
+  */
 }
 
 @pragma('vm:entry-point')

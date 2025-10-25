@@ -23,15 +23,15 @@ class StepDetectionConfig {
   final double userBaselineMagnitude; // User's baseline acceleration magnitude
 
   const StepDetectionConfig({
-    this.peakThreshold = 0.8,
-    this.valleyThreshold = 0.6,
-    this.minStepIntervalMs = 300, // ~2 steps per second max (more realistic)
-    this.maxStepIntervalMs = 1500, // ~0.67 steps per second min
-    this.minMagnitudeThreshold = 8.5, // More lenient for different devices
-    this.maxMagnitudeThreshold = 18.0, // More lenient for different devices
+    this.peakThreshold = 0.6, // More sensitive peak detection
+    this.valleyThreshold = 0.4, // More sensitive valley detection
+    this.minStepIntervalMs = 250, // ~2.4 steps per second max (more realistic)
+    this.maxStepIntervalMs = 2000, // ~0.5 steps per second min (slower walking)
+    this.minMagnitudeThreshold = 8.0, // More lenient for different devices
+    this.maxMagnitudeThreshold = 20.0, // More lenient for different devices
     this.minConsecutiveSteps = 2, // Lower threshold for faster detection
     this.maxStepsWithoutWalking = 8,
-    this.sensitivity = 0.6, // Slightly more sensitive by default
+    this.sensitivity = 0.7, // More sensitive by default for better detection
     this.isCalibrated = false,
     this.userBaselineMagnitude = 9.81, // Standard gravity
   });

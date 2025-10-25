@@ -69,15 +69,20 @@ If accuracy is poor, you can recalibrate:
 - ❌ Too restrictive thresholds
 - ❌ Poor movement validation
 - ❌ Inconsistent calibration
+- ❌ Walking pattern validation using wrong data
+- ❌ Step timing validation too strict
 
 ### **After (Improvements Made):**
 - ✅ Robust peak/valley detection with proper buffer handling
 - ✅ Dynamic thresholds based on user's baseline
 - ✅ Better movement validation using user-specific ranges
 - ✅ Improved calibration with statistical analysis
-- ✅ Enhanced walking pattern recognition
-- ✅ More realistic step timing constraints
+- ✅ Enhanced walking pattern recognition using recent data
+- ✅ More realistic step timing constraints (250-2000ms)
 - ✅ Better false positive prevention
+- ✅ More sensitive default settings (0.7 sensitivity)
+- ✅ Improved debug logging for troubleshooting
+- ✅ Better reset functionality
 
 ## Technical Details
 
@@ -85,11 +90,15 @@ If accuracy is poor, you can recalibrate:
 1. **Peak Detection**: Fixed buffer indexing and added baseline-based thresholds
 2. **Movement Validation**: Uses user's calibrated baseline instead of fixed gravity
 3. **Step Validation**: Dynamic magnitude difference thresholds
-4. **Walking Pattern**: Enhanced pattern recognition with peak/valley counting
+4. **Walking Pattern**: Enhanced pattern recognition using recent data (last 15 readings)
 5. **Calibration**: Statistical analysis with standard deviation-based thresholds
+6. **Buffer Management**: Proper FIFO handling for accelerometer data
+7. **Step Timing**: Separate validation for peak-valley intervals vs step intervals
 
 ### **Configuration Updates:**
-- More realistic step timing (300-1500ms between steps)
+- More realistic step timing (250-2000ms between steps)
 - Lower consecutive step threshold (2 instead of 3)
-- More lenient magnitude ranges (8.5-18.0)
-- Higher default sensitivity (0.6 instead of 0.5)
+- More lenient magnitude ranges (8.0-20.0)
+- Higher default sensitivity (0.7 instead of 0.5)
+- More sensitive peak/valley detection (0.6/0.4 thresholds)
+- Better calibration thresholds (1.5x and 2.5x standard deviation)
