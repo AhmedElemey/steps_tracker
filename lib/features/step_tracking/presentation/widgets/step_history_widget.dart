@@ -12,34 +12,36 @@ class StepHistoryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     if (stepHistory.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surfaceContainer,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: colorScheme.shadow.withOpacity(0.1),
               spreadRadius: 1,
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
           ],
         ),
-        child: const Center(
+        child: Center(
           child: Column(
             children: [
               Icon(
                 Icons.history,
                 size: 48,
-                color: Colors.grey,
+                color: colorScheme.onSurface.withOpacity(0.4),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 'No step data available',
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: colorScheme.onSurface.withOpacity(0.5),
                   fontSize: 16,
                 ),
               ),
@@ -51,11 +53,11 @@ class StepHistoryWidget extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: colorScheme.shadow.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -73,7 +75,7 @@ class StepHistoryWidget extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color: Colors.grey.shade100,
+                  color: colorScheme.outline.withOpacity(0.1),
                   width: 1,
                 ),
               ),
@@ -84,12 +86,12 @@ class StepHistoryWidget extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: isToday ? const Color(0xFF2E7D32).withOpacity(0.1) : Colors.grey.shade100,
+                    color: isToday ? colorScheme.primary.withOpacity(0.1) : colorScheme.surface.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Icon(
                     Icons.directions_walk,
-                    color: isToday ? const Color(0xFF2E7D32) : Colors.grey,
+                    color: isToday ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.4),
                     size: 20,
                   ),
                 ),
@@ -102,14 +104,14 @@ class StepHistoryWidget extends StatelessWidget {
                         dayName,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: isToday ? const Color(0xFF2E7D32) : Colors.black87,
+                          color: isToday ? colorScheme.primary : colorScheme.onSurface,
                         ),
                       ),
                       Text(
                         dateStr,
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color: colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
                     ],
@@ -120,16 +122,17 @@ class StepHistoryWidget extends StatelessWidget {
                   children: [
                     Text(
                       _formatSteps(stepData.steps),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     Text(
                       'steps',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.grey.shade600,
+                        color: colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                   ],

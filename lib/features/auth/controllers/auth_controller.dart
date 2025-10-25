@@ -10,13 +10,14 @@ class AuthController extends ChangeNotifier {
 
   User? _user;
   UserProfile? _userProfile;
+  bool _isInitialLoading = true;
   bool _isLoading = false;
   String _errorMessage = '';
 
   // Getters
   User? get user => _user;
   UserProfile? get userProfile => _userProfile;
-  bool get isLoading => _isLoading;
+  bool get isLoading => _isInitialLoading || _isLoading;
   String get errorMessage => _errorMessage;
   bool get isSignedIn => _user != null;
   bool get hasProfile => _userProfile != null;
@@ -25,11 +26,15 @@ class AuthController extends ChangeNotifier {
     _initialize();
   }
 
-  void _initialize() {
+  Future<void> _initialize() async {
     _user = _firebaseService.currentUser;
     if (_user != null) {
-      _loadUserProfile();
+      await _loadUserProfile();
     }
+    
+    // Mark initial loading as complete
+    _isInitialLoading = false;
+    notifyListeners();
     
     // Listen to auth state changes
     _firebaseService.authStateChanges.listen((user) {
@@ -51,6 +56,8 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Error loading user profile: $e');
+      // Don't set error message here as it's called during initialization
+      // The user can retry by navigating to profile form if needed
     }
   }
 
@@ -66,12 +73,13 @@ class AuthController extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        _errorMessage = 'Failed to sign in anonymously';
+        _errorMessage = 'Failed to sign in anonymously. Please check your internet connection and try again.';
         notifyListeners();
         return false;
       }
     } catch (e) {
-      _errorMessage = 'Error signing in: $e';
+      debugPrint('Error signing in anonymously: $e');
+      _errorMessage = 'Error signing in: ${e.toString()}';
       notifyListeners();
       return false;
     } finally {
@@ -83,7 +91,6 @@ class AuthController extends ChangeNotifier {
   Future<bool> createProfile({
     required String name,
     required double weight,
-    String? profileImageUrl,
   }) async {
     try {
       _isLoading = true;
@@ -93,7 +100,6 @@ class AuthController extends ChangeNotifier {
       final profile = await _profileService.createProfile(
         name: name,
         weight: weight,
-        profileImageUrl: profileImageUrl,
       );
 
       if (profile != null) {

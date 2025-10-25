@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import '../../../core/services/firebase_service.dart';
 import '../models/step_entry.dart';
 
@@ -38,7 +39,7 @@ class StepsFirebaseService {
       await _stepsCollection.doc(entryId).set(entry.toMap());
       return entry;
     } catch (e) {
-      print('Error creating step entry: $e');
+      debugPrint('Error creating step entry: $e');
       return null;
     }
   }
@@ -67,7 +68,7 @@ class StepsFirebaseService {
       await _stepsCollection.doc(entryId).update(updatedEntry.toMap());
       return updatedEntry;
     } catch (e) {
-      print('Error updating step entry: $e');
+      debugPrint('Error updating step entry: $e');
       return null;
     }
   }
@@ -85,7 +86,7 @@ class StepsFirebaseService {
       }
       return null;
     } catch (e) {
-      print('Error getting step entry: $e');
+      debugPrint('Error getting step entry: $e');
       return null;
     }
   }
@@ -116,7 +117,7 @@ class StepsFirebaseService {
           .map((doc) => StepEntry.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      print('Error getting step entries: $e');
+      debugPrint('Error getting step entries: $e');
       return [];
     }
   }
@@ -155,7 +156,7 @@ class StepsFirebaseService {
       await _stepsCollection.doc(entryId).delete();
       return true;
     } catch (e) {
-      print('Error deleting step entry: $e');
+      debugPrint('Error deleting step entry: $e');
       return false;
     }
   }
@@ -165,7 +166,7 @@ class StepsFirebaseService {
       final entries = await getStepEntries(startDate: startDate, endDate: endDate);
       return entries.fold<int>(0, (sum, entry) => sum + entry.steps);
     } catch (e) {
-      print('Error getting total steps: $e');
+      debugPrint('Error getting total steps: $e');
       return 0;
     }
   }

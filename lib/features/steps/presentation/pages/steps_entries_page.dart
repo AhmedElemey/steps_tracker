@@ -2,31 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../controllers/steps_controller.dart';
+import '../widgets/add_steps_dialog.dart';
 
 class StepsEntriesPage extends StatelessWidget {
   const StepsEntriesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: const Text(
           'Steps Entries',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
           ),
         ),
-        backgroundColor: const Color(0xFF2E7D32),
+        backgroundColor: colorScheme.primary,
         elevation: 0,
+        actions: [
+          IconButton(
+            onPressed: () => _showAddStepsDialog(context),
+            icon: const Icon(Icons.add),
+            tooltip: 'Add Steps Entry',
+          ),
+        ],
       ),
       body: Consumer<StepsController>(
         builder: (context, stepsController, child) {
           if (stepsController.isLoading) {
-            return const Center(
+            return Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2E7D32)),
+                valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
               ),
             );
           }
@@ -39,22 +49,32 @@ class StepsEntriesPage extends StatelessWidget {
                   Icon(
                     Icons.directions_walk_outlined,
                     size: 64,
-                    color: Colors.grey.shade400,
+                    color: colorScheme.onSurface.withOpacity(0.4),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     'No steps entries yet',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Colors.grey.shade600,
+                      color: colorScheme.onSurface.withOpacity(0.7),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Start walking to see your step entries here',
+                    'Add your first steps entry to get started',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade500,
+                      color: colorScheme.onSurface.withOpacity(0.5),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () => _showAddStepsDialog(context),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add Steps Entry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
                     ),
                   ),
                 ],
@@ -76,14 +96,16 @@ class StepsEntriesPage extends StatelessWidget {
   }
 
   Widget _buildStepsEntryCard(BuildContext context, dynamic entry) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: colorScheme.shadow.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 8,
             offset: const Offset(0, 2),
@@ -95,12 +117,12 @@ class StepsEntriesPage extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF2E7D32).withOpacity(0.1),
+            color: colorScheme.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.directions_walk,
-            color: Color(0xFF2E7D32),
+            color: colorScheme.primary,
           ),
         ),
         title: Text(
@@ -113,23 +135,39 @@ class StepsEntriesPage extends StatelessWidget {
         subtitle: Text(
           DateFormat('MMM dd, yyyy - HH:mm').format(entry.timestamp),
           style: TextStyle(
-            color: Colors.grey.shade600,
+            color: colorScheme.onSurface.withOpacity(0.6),
           ),
         ),
-        trailing: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: const Color(0xFF2E7D32).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            _getTimeAgo(entry.timestamp),
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF2E7D32),
-              fontWeight: FontWeight.w500,
+        trailing: PopupMenuButton<String>(
+          onSelected: (value) {
+            if (value == 'edit') {
+              _showEditStepsDialog(context, entry);
+            } else if (value == 'delete') {
+              _showDeleteConfirmation(context, entry);
+            }
+          },
+          itemBuilder: (context) => [
+            const PopupMenuItem(
+              value: 'edit',
+              child: Row(
+                children: [
+                  Icon(Icons.edit, size: 20),
+                  SizedBox(width: 8),
+                  Text('Edit'),
+                ],
+              ),
             ),
-          ),
+            const PopupMenuItem(
+              value: 'delete',
+              child: Row(
+                children: [
+                  Icon(Icons.delete, size: 20, color: Colors.red),
+                  SizedBox(width: 8),
+                  Text('Delete', style: TextStyle(color: Colors.red)),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -142,18 +180,71 @@ class StepsEntriesPage extends StatelessWidget {
     return steps.toString();
   }
 
-  String _getTimeAgo(DateTime timestamp) {
-    final now = DateTime.now();
-    final difference = now.difference(timestamp);
+  void _showAddStepsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => const AddStepsDialog(),
+    );
+  }
 
-    if (difference.inMinutes < 1) {
-      return 'Just now';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}m ago';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h ago';
-    } else {
-      return '${difference.inDays}d ago';
-    }
+  void _showEditStepsDialog(BuildContext context, dynamic entry) {
+    showDialog(
+      context: context,
+      builder: (context) => AddStepsDialog(
+        initialSteps: entry.steps,
+        entryId: entry.id,
+        isEditing: true,
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, dynamic entry) {
+    showDialog(
+      context: context,
+      builder: (context) => Consumer<StepsController>(
+        builder: (context, stepsController, child) {
+          return AlertDialog(
+            title: const Text('Delete Steps Entry'),
+            content: Text('Are you sure you want to delete this entry of ${_formatSteps(entry.steps)} steps?'),
+            actions: [
+              TextButton(
+                onPressed: stepsController.isLoading ? null : () => Navigator.of(context).pop(),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: stepsController.isLoading ? null : () async {
+                  final success = await stepsController.deleteStepsEntry(entry.id);
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Steps entry deleted successfully'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } else if (stepsController.errorMessage.isNotEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(stepsController.errorMessage),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: stepsController.isLoading
+                    ? const SizedBox(
+                        height: 16,
+                        width: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Delete', style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }

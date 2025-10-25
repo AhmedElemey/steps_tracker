@@ -5,8 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'core/controllers/theme_controller.dart';
 import 'core/services/localization_service.dart';
-import 'core/services/firebase_service.dart';
-import 'core/services/sync_service.dart';
+
 import 'features/auth/controllers/auth_controller.dart';
 import 'features/step_tracking/controllers/step_tracking_controller.dart';
 import 'features/weight/controllers/weight_controller.dart';
@@ -18,7 +17,7 @@ import 'features/auth/presentation/pages/auth_page.dart';
 import 'features/profile/presentation/pages/profile_form_page.dart';
 import 'features/weight/presentation/pages/weight_entries_page.dart';
 import 'features/steps/presentation/pages/steps_entries_page.dart';
-import 'features/goals/presentation/pages/goals_page.dart';
+import 'core/presentation/pages/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,12 +25,16 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Initialize Firebase and Sync services
-  final firebaseService = FirebaseService();
-  await firebaseService.initialize();
+  // Initialize Firebase and Sync services (async to speed up startup)
+  // final firebaseService = FirebaseService();
+  // await firebaseService.initialize();
   
-  final syncService = SyncService();
-  await syncService.initialize();
+  // final syncService = SyncService();
+  // await syncService.initialize();
+  
+  // Initialize background service (temporarily disabled)
+  // final backgroundManager = BackgroundServiceManager();
+  // await backgroundManager.initialize();
   
   runApp(const StepsTrackerApp());
 }
@@ -91,13 +94,50 @@ class StepsTrackerApp extends StatelessWidget {
   }
 }
 
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
 
   @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Show splash screen for a minimum duration
+    _initializeApp();
+  }
+
+  Future<void> _initializeApp() async {
+    // Wait for minimum splash duration
+    await Future.delayed(const Duration(seconds: 1));
+    
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // Show splash screen while loading
+    if (_isLoading) {
+      return const SplashScreen();
+    }
+
+    // Check authentication state and navigate accordingly
     return Consumer<AuthController>(
       builder: (context, authController, child) {
+        // Wait for auth state to be determined
+        if (authController.isLoading) {
+          return const SplashScreen();
+        }
+
+        // Check authentication state and navigate accordingly
         if (authController.isSignedIn) {
           if (authController.hasProfile) {
             return const MainNavigationPage();
@@ -124,9 +164,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   final List<Widget> _pages = [
     const HomePage(),
-    const WeightEntriesPage(),
     const StepsEntriesPage(),
-    const GoalsPage(),
+    const WeightEntriesPage(),
     const SettingsPage(),
   ];
 
@@ -154,16 +193,12 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.monitor_weight),
-            label: 'Weight',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.directions_walk),
             label: 'Steps',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.flag),
-            label: 'Goals',
+            icon: Icon(Icons.monitor_weight),
+            label: 'Weight',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

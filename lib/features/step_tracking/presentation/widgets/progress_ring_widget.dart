@@ -14,14 +14,16 @@ class ProgressRingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: colorScheme.shadow.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 10,
             offset: const Offset(0, 2),
@@ -41,7 +43,7 @@ class ProgressRingWidget extends StatelessWidget {
                   height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.grey.shade100,
+                    color: colorScheme.surface,
                   ),
                 ),
                 // Progress circle
@@ -51,9 +53,9 @@ class ProgressRingWidget extends StatelessWidget {
                   child: CircularProgressIndicator(
                     value: progress,
                     strokeWidth: 8,
-                    backgroundColor: Colors.grey.shade200,
+                    backgroundColor: colorScheme.surfaceContainerHighest,
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      progress >= 1.0 ? Colors.green : const Color(0xFF2E7D32),
+                      progress >= 1.0 ? Colors.green : colorScheme.primary,
                     ),
                   ),
                 ),
@@ -64,10 +66,10 @@ class ProgressRingWidget extends StatelessWidget {
                     children: [
                       Text(
                         '${(progress * 100).toStringAsFixed(0)}%',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF2E7D32),
+                          color: colorScheme.primary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -75,7 +77,7 @@ class ProgressRingWidget extends StatelessWidget {
                         'Complete',
                         style: TextStyle(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color: colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
                     ],
@@ -89,7 +91,7 @@ class ProgressRingWidget extends StatelessWidget {
             'Daily Goal',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade600,
+              color: colorScheme.onSurface.withOpacity(0.7),
               fontWeight: FontWeight.w500,
             ),
           ),

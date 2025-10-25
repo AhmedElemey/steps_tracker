@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import '../../../core/services/firebase_service.dart';
 import '../models/weight_entry.dart';
 
@@ -14,7 +15,10 @@ class WeightService {
   Future<WeightEntry?> addWeightEntry(double weight) async {
     try {
       final user = _firebaseService.currentUser;
-      if (user == null) return null;
+      if (user == null) {
+        debugPrint('Cannot add weight entry: User is null');
+        return null;
+      }
 
       final now = DateTime.now();
       final entry = WeightEntry(
@@ -26,10 +30,12 @@ class WeightService {
         updatedAt: now,
       );
 
+      debugPrint('Adding weight entry to Firestore: userId=${user.uid}, weight=$weight');
       await _weightEntriesCollection.doc(entry.id).set(entry.toMap());
+      debugPrint('Successfully added weight entry with id: ${entry.id}');
       return entry;
     } catch (e) {
-      print('Error adding weight entry: $e');
+      debugPrint('Error adding weight entry: $e');
       return null;
     }
   }
@@ -51,7 +57,7 @@ class WeightService {
       await _weightEntriesCollection.doc(id).update(entry.toMap());
       return entry;
     } catch (e) {
-      print('Error updating weight entry: $e');
+      debugPrint('Error updating weight entry: $e');
       return null;
     }
   }
@@ -61,7 +67,7 @@ class WeightService {
       await _weightEntriesCollection.doc(id).delete();
       return true;
     } catch (e) {
-      print('Error deleting weight entry: $e');
+      debugPrint('Error deleting weight entry: $e');
       return false;
     }
   }
@@ -69,18 +75,48 @@ class WeightService {
   Future<List<WeightEntry>> getWeightEntries() async {
     try {
       final user = _firebaseService.currentUser;
-      if (user == null) return [];
+      if (user == null) {
+        debugPrint('Cannot get weight entries: User is null');
+        return [];
+      }
 
-      final querySnapshot = await _weightEntriesCollection
-          .where('userId', isEqualTo: user.uid)
-          .orderBy('date', descending: true)
-          .get();
+      debugPrint('Fetching weight entries for user: ${user.uid}');
+      
+      // Try with orderBy - this might require a compound index
+      try {
+        final querySnapshot = await _weightEntriesCollection
+            .where('userId', isEqualTo: user.uid)
+            .orderBy('date', descending: true)
+            .get();
 
-      return querySnapshot.docs
-          .map((doc) => WeightEntry.fromMap(doc.data() as Map<String, dynamic>))
-          .toList();
+        final entries = querySnapshot.docs
+            .map((doc) {
+              debugPrint('Document data: ${doc.data()}');
+              return WeightEntry.fromMap(doc.data() as Map<String, dynamic>);
+            })
+            .toList();
+        
+        debugPrint('Successfully fetched ${entries.length} weight entries');
+        return entries;
+      } catch (e) {
+        debugPrint('Error with orderBy query: $e');
+        debugPrint('Trying without orderBy...');
+        
+        // Fallback: get without orderBy and sort in memory
+        final querySnapshot = await _weightEntriesCollection
+            .where('userId', isEqualTo: user.uid)
+            .get();
+
+        final entries = querySnapshot.docs
+            .map((doc) => WeightEntry.fromMap(doc.data() as Map<String, dynamic>))
+            .toList()
+          ..sort((a, b) => b.date.compareTo(a.date)); // Sort descending by date
+        
+        debugPrint('Successfully fetched ${entries.length} weight entries (without Firestore orderBy)');
+        return entries;
+      }
     } catch (e) {
-      print('Error getting weight entries: $e');
+      debugPrint('Error getting weight entries: $e');
       return [];
     }
   }
@@ -88,15 +124,36 @@ class WeightService {
   Stream<List<WeightEntry>> getWeightEntriesStream() {
     final user = _firebaseService.currentUser;
     if (user == null) {
+      debugPrint('Cannot listen to weight entries: User is null');
       return Stream.value([]);
     }
 
+    debugPrint('Listening to weight entries stream for user: ${user.uid}');
+    
+    // Use try-catch for the stream as well
     return _weightEntriesCollection
         .where('userId', isEqualTo: user.uid)
         .orderBy('date', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => WeightEntry.fromMap(doc.data() as Map<String, dynamic>))
-            .toList());
+        .map((snapshot) {
+          debugPrint('Stream snapshot: ${snapshot.docs.length} documents');
+          return snapshot.docs
+              .map((doc) => WeightEntry.fromMap(doc.data() as Map<String, dynamic>))
+              .toList();
+        })
+        .handleError((error) {
+          debugPrint('Stream error: $error');
+          // Try without orderBy as fallback
+          return _weightEntriesCollection
+              .where('userId', isEqualTo: user.uid)
+              .snapshots()
+              .map((snapshot) {
+                final entries = snapshot.docs
+                    .map((doc) => WeightEntry.fromMap(doc.data() as Map<String, dynamic>))
+                    .toList()
+                  ..sort((a, b) => b.date.compareTo(a.date));
+                return entries;
+              });
+        });
   }
 }

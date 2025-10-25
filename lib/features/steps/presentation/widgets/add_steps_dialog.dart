@@ -1,46 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../controllers/weight_controller.dart';
+import '../../controllers/steps_controller.dart';
 
-class AddWeightDialog extends StatefulWidget {
-  final double? initialWeight;
+class AddStepsDialog extends StatefulWidget {
+  final int? initialSteps;
   final String? entryId;
   final bool isEditing;
 
-  const AddWeightDialog({
+  const AddStepsDialog({
     super.key,
-    this.initialWeight,
+    this.initialSteps,
     this.entryId,
     this.isEditing = false,
   });
 
   @override
-  State<AddWeightDialog> createState() => _AddWeightDialogState();
+  State<AddStepsDialog> createState() => _AddStepsDialogState();
 }
 
-class _AddWeightDialogState extends State<AddWeightDialog> {
+class _AddStepsDialogState extends State<AddStepsDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _weightController = TextEditingController();
+  final _stepsController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    if (widget.initialWeight != null) {
-      _weightController.text = widget.initialWeight.toString();
+    if (widget.initialSteps != null) {
+      _stepsController.text = widget.initialSteps.toString();
     }
   }
 
   @override
   void dispose() {
-    _weightController.dispose();
+    _stepsController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return AlertDialog(
       title: Text(
-        widget.isEditing ? 'Edit Weight Entry' : 'Add Weight Entry',
+        widget.isEditing ? 'Edit Steps Entry' : 'Add Steps Entry',
         style: const TextStyle(
           fontWeight: FontWeight.bold,
         ),
@@ -51,34 +53,34 @@ class _AddWeightDialogState extends State<AddWeightDialog> {
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
-              controller: _weightController,
+              controller: _stepsController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: 'Weight (kg)',
-                hintText: 'Enter your weight',
-                prefixIcon: const Icon(Icons.monitor_weight),
+                labelText: 'Steps',
+                hintText: 'Enter number of steps',
+                prefixIcon: const Icon(Icons.directions_walk),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter your weight';
+                  return 'Please enter the number of steps';
                 }
-                final weight = double.tryParse(value);
-                if (weight == null || weight <= 0) {
-                  return 'Please enter a valid weight';
+                final steps = int.tryParse(value);
+                if (steps == null || steps <= 0) {
+                  return 'Please enter a valid number of steps';
                 }
-                if (weight > 500) {
-                  return 'Please enter a realistic weight';
+                if (steps > 100000) {
+                  return 'Please enter a realistic number of steps';
                 }
                 return null;
               },
             ),
             const SizedBox(height: 16),
-            Consumer<WeightController>(
-              builder: (context, weightController, child) {
-                if (weightController.errorMessage.isNotEmpty) {
+            Consumer<StepsController>(
+              builder: (context, stepsController, child) {
+                if (stepsController.errorMessage.isNotEmpty) {
                   return Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
@@ -92,7 +94,7 @@ class _AddWeightDialogState extends State<AddWeightDialog> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            weightController.errorMessage,
+                            stepsController.errorMessage,
                             style: TextStyle(
                               color: Colors.red.shade600,
                               fontSize: 12,
@@ -114,17 +116,15 @@ class _AddWeightDialogState extends State<AddWeightDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancel'),
         ),
-        Consumer<WeightController>(
-          builder: (context, weightController, child) {
-            final colorScheme = Theme.of(context).colorScheme;
-            
+        Consumer<StepsController>(
+          builder: (context, stepsController, child) {
             return ElevatedButton(
-              onPressed: weightController.isLoading ? null : _submitForm,
+              onPressed: stepsController.isLoading ? null : _submitForm,
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primary,
                 foregroundColor: colorScheme.onPrimary,
               ),
-              child: weightController.isLoading
+              child: stepsController.isLoading
                   ? const SizedBox(
                       height: 16,
                       width: 16,
@@ -144,14 +144,14 @@ class _AddWeightDialogState extends State<AddWeightDialog> {
   void _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final weightController = context.read<WeightController>();
-    final weight = double.parse(_weightController.text.trim());
+    final stepsController = context.read<StepsController>();
+    final steps = int.parse(_stepsController.text.trim());
     
     bool success;
     if (widget.isEditing && widget.entryId != null) {
-      success = await weightController.updateWeightEntry(widget.entryId!, weight);
+      success = await stepsController.updateStepsEntry(widget.entryId!, steps);
     } else {
-      success = await weightController.addWeightEntry(weight);
+      success = await stepsController.addStepsEntry(steps);
     }
 
     if (mounted) {
@@ -164,16 +164,16 @@ class _AddWeightDialogState extends State<AddWeightDialog> {
           SnackBar(
             content: Text(
               widget.isEditing 
-                  ? 'Weight entry updated successfully'
-                  : 'Weight entry added successfully',
+                  ? 'Steps entry updated successfully'
+                  : 'Steps entry added successfully',
             ),
             backgroundColor: Colors.green,
           ),
         );
-      } else if (weightController.errorMessage.isNotEmpty) {
+      } else if (stepsController.errorMessage.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(weightController.errorMessage),
+            content: Text(stepsController.errorMessage),
             backgroundColor: Colors.red,
           ),
         );

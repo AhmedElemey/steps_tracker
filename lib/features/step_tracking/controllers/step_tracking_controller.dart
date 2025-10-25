@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:pedometer/pedometer.dart';
 import '../models/step_data.dart';
+import '../models/walking_state.dart';
 import '../services/step_tracking_service.dart';
+import '../services/step_calibration_service.dart';
 import '../../goals/services/goals_service.dart';
 import '../../steps/services/steps_service.dart';
 
@@ -16,8 +18,11 @@ class StepTrackingController extends ChangeNotifier {
   double _progress = 0.0;
   bool _isTracking = false;
   PedestrianStatus? _pedestrianStatus;
+  WalkingStateData? _walkingState;
   List<StepData> _stepHistory = [];
   String _errorMessage = '';
+  bool _isCalibrated = false;
+  double _sensitivity = 0.5;
 
   // Getters
   int get currentSteps => _currentSteps;
@@ -25,12 +30,16 @@ class StepTrackingController extends ChangeNotifier {
   double get progress => _progress;
   bool get isTracking => _isTracking;
   PedestrianStatus? get pedestrianStatus => _pedestrianStatus;
+  WalkingStateData? get walkingState => _walkingState;
   List<StepData> get stepHistory => _stepHistory;
   String get errorMessage => _errorMessage;
+  bool get isCalibrated => _isCalibrated;
+  double get sensitivity => _sensitivity;
 
   // Stream subscriptions
   StreamSubscription<int>? _stepsSubscription;
   StreamSubscription<PedestrianStatus>? _statusSubscription;
+  StreamSubscription<WalkingStateData>? _walkingStateSubscription;
 
   StepTrackingController() {
     _initialize();
@@ -44,6 +53,9 @@ class StepTrackingController extends ChangeNotifier {
       // Load step history
       await _loadStepHistory();
       
+      // Sync background steps first
+      await _stepTrackingService.syncBackgroundSteps();
+      
       // Start listening to step updates
       _stepsSubscription = _stepTrackingService.stepsStream.listen(
         _onStepsUpdate,
@@ -52,6 +64,11 @@ class StepTrackingController extends ChangeNotifier {
 
       _statusSubscription = _stepTrackingService.statusStream.listen(
         _onStatusUpdate,
+        onError: _onError,
+      );
+
+      _walkingStateSubscription = _stepTrackingService.walkingStateStream.listen(
+        _onWalkingStateUpdate,
         onError: _onError,
       );
 
@@ -76,6 +93,11 @@ class StepTrackingController extends ChangeNotifier {
 
   void _onStatusUpdate(PedestrianStatus status) {
     _pedestrianStatus = status;
+    notifyListeners();
+  }
+
+  void _onWalkingStateUpdate(WalkingStateData stateData) {
+    _walkingState = stateData;
     notifyListeners();
   }
 
@@ -218,10 +240,95 @@ class StepTrackingController extends ChangeNotifier {
     return remaining > 0 ? remaining.toString() : '0';
   }
 
+  // Advanced step detection methods
+  Future<void> startCalibration() async {
+    try {
+      _errorMessage = '';
+      await _stepTrackingService.startCalibration();
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Failed to start calibration: $e';
+      notifyListeners();
+    }
+  }
+
+  void cancelCalibration() {
+    _stepTrackingService.cancelCalibration();
+  }
+
+  void setSensitivity(double sensitivity) {
+    _sensitivity = sensitivity.clamp(0.0, 1.0);
+    _stepTrackingService.setSensitivity(_sensitivity);
+    notifyListeners();
+  }
+
+  void resetSteps() {
+    _stepTrackingService.resetSteps();
+    _currentSteps = 0;
+    _updateProgress();
+    notifyListeners();
+  }
+
+  void toggleDetectionMode() {
+    _stepTrackingService.toggleDetectionMode();
+    notifyListeners();
+  }
+
+  bool get isWalking => _walkingState?.isWalking ?? false;
+  bool get isIdle => _walkingState?.isIdle ?? true;
+  bool get isCalibrating => _walkingState?.isCalibrating ?? false;
+
+  String get walkingStatusMessage {
+    if (_walkingState?.message != null) {
+      return _walkingState!.message!;
+    }
+    
+    if (isWalking) {
+      return 'Walking detected - steps are being counted';
+    } else if (isIdle) {
+      return 'No walking detected';
+    } else {
+      return 'Movement detected - waiting for consistent walking pattern';
+    }
+  }
+
+  double get walkingConfidence => _walkingState?.confidence ?? 0.0;
+
+  Stream<CalibrationProgress> get calibrationProgressStream => _stepTrackingService.calibrationProgressStream;
+  Stream<CalibrationResult> get calibrationResultStream => _stepTrackingService.calibrationResultStream;
+
+  // Background tracking methods
+  Future<void> syncBackgroundSteps() async {
+    await _stepTrackingService.syncBackgroundSteps();
+    _currentSteps = _stepTrackingService.currentSteps;
+    _updateProgress();
+    notifyListeners();
+  }
+
+  Future<bool> isBackgroundTracking() async {
+    return await _stepTrackingService.isBackgroundTracking();
+  }
+
+  Future<int> getBackgroundStepCount() async {
+    return await _stepTrackingService.getBackgroundStepCount();
+  }
+
+  Future<DateTime?> getBackgroundLastUpdate() async {
+    return await _stepTrackingService.getBackgroundLastUpdate();
+  }
+
+  Future<void> resetBackgroundSteps() async {
+    await _stepTrackingService.resetBackgroundSteps();
+    _currentSteps = 0;
+    _updateProgress();
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _stepsSubscription?.cancel();
     _statusSubscription?.cancel();
+    _walkingStateSubscription?.cancel();
     _stepTrackingService.dispose();
     super.dispose();
   }

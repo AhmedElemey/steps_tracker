@@ -7,8 +7,10 @@ class AuthPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: colorScheme.surface,
       body: SafeArea(
         child: Consumer<AuthController>(
           builder: (context, authController, child) {
@@ -22,11 +24,11 @@ class AuthPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colorScheme.surfaceContainer,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: colorScheme.shadow.withOpacity(0.1),
                           spreadRadius: 1,
                           blurRadius: 20,
                           offset: const Offset(0, 4),
@@ -38,22 +40,22 @@ class AuthPage extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF2E7D32).withOpacity(0.1),
+                            color: colorScheme.primary.withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.directions_walk,
                             size: 64,
-                            color: Color(0xFF2E7D32),
+                            color: colorScheme.primary,
                           ),
                         ),
                         const SizedBox(height: 24),
-                        const Text(
+                        Text(
                           'Steps Tracker',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF2E7D32),
+                            color: colorScheme.primary,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -61,7 +63,7 @@ class AuthPage extends StatelessWidget {
                           'Track your daily steps and fitness goals',
                           style: TextStyle(
                             fontSize: 16,
-                            color: Colors.grey.shade600,
+                            color: colorScheme.onSurface.withOpacity(0.7),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -75,11 +77,11 @@ class AuthPage extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colorScheme.surfaceContainer,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: colorScheme.shadow.withOpacity(0.1),
                           spreadRadius: 1,
                           blurRadius: 10,
                           offset: const Offset(0, 2),
@@ -98,18 +100,22 @@ class AuthPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         _buildFeatureItem(
+                          context,
                           Icons.track_changes,
                           'Real-time step tracking',
                         ),
                         _buildFeatureItem(
+                          context,
                           Icons.analytics,
                           'Progress visualization',
                         ),
                         _buildFeatureItem(
+                          context,
                           Icons.cloud_sync,
                           'Cloud synchronization',
                         ),
                         _buildFeatureItem(
+                          context,
                           Icons.history,
                           'Step history tracking',
                         ),
@@ -149,8 +155,8 @@ class AuthPage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: authController.isLoading ? null : () => _signInAnonymously(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2E7D32),
-                      foregroundColor: Colors.white,
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -181,7 +187,7 @@ class AuthPage extends StatelessWidget {
                     'Sign in anonymously to start tracking your steps',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.grey.shade600,
+                      color: colorScheme.onSurface.withOpacity(0.7),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -194,14 +200,16 @@ class AuthPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureItem(IconData icon, String text) {
+  Widget _buildFeatureItem(BuildContext context, IconData icon, String text) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
           Icon(
             icon,
-            color: const Color(0xFF2E7D32),
+            color: colorScheme.primary,
             size: 20,
           ),
           const SizedBox(width: 12),

@@ -15,7 +15,6 @@ class ProfileService {
   Future<UserProfile?> createProfile({
     required String name,
     required double weight,
-    String? profileImageUrl,
   }) async {
     try {
       final user = _firebaseService.currentUser;
@@ -26,15 +25,34 @@ class ProfileService {
         id: user.uid,
         name: name,
         weight: weight,
-        profileImageUrl: profileImageUrl,
         createdAt: now,
         updatedAt: now,
       );
 
-      await _profilesCollection.doc(user.uid).set(profile.toMap());
-      return profile;
+      // Retry logic for Firestore unavailable errors
+      int retryCount = 0;
+      const maxRetries = 3;
+      const retryDelay = Duration(seconds: 2);
+
+      while (retryCount < maxRetries) {
+        try {
+          await _profilesCollection.doc(user.uid).set(profile.toMap());
+          return profile;
+        } catch (e) {
+          retryCount++;
+          debugPrint('Error creating profile (attempt $retryCount): $e');
+          
+          if (retryCount >= maxRetries) {
+            rethrow;
+          }
+          
+          // Wait before retrying
+          await Future.delayed(retryDelay * retryCount);
+        }
+      }
+      return null;
     } catch (e) {
-      debugPrint('Error creating profile: $e');
+      debugPrint('Error creating profile after retries: $e');
       return null;
     }
   }
@@ -44,13 +62,33 @@ class ProfileService {
       final user = _firebaseService.currentUser;
       if (user == null) return null;
 
-      final doc = await _profilesCollection.doc(user.uid).get();
-      if (doc.exists) {
-        return UserProfile.fromMap(doc.data() as Map<String, dynamic>);
+      // Retry logic for Firestore unavailable errors
+      int retryCount = 0;
+      const maxRetries = 3;
+      const retryDelay = Duration(seconds: 2);
+
+      while (retryCount < maxRetries) {
+        try {
+          final doc = await _profilesCollection.doc(user.uid).get();
+          if (doc.exists) {
+            return UserProfile.fromMap(doc.data() as Map<String, dynamic>);
+          }
+          return null;
+        } catch (e) {
+          retryCount++;
+          debugPrint('Error getting profile (attempt $retryCount): $e');
+          
+          if (retryCount >= maxRetries) {
+            rethrow;
+          }
+          
+          // Wait before retrying
+          await Future.delayed(retryDelay * retryCount);
+        }
       }
       return null;
     } catch (e) {
-      debugPrint('Error getting profile: $e');
+      debugPrint('Error getting profile after retries: $e');
       return null;
     }
   }
@@ -58,7 +96,6 @@ class ProfileService {
   Future<UserProfile?> updateProfile({
     String? name,
     double? weight,
-    String? profileImageUrl,
   }) async {
     try {
       final user = _firebaseService.currentUser;
@@ -70,7 +107,6 @@ class ProfileService {
       final updatedProfile = currentProfile.copyWith(
         name: name,
         weight: weight,
-        profileImageUrl: profileImageUrl,
         updatedAt: DateTime.now(),
       );
 

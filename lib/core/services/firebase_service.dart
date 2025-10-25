@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -42,6 +41,12 @@ class FirebaseService {
 
   Future<UserCredential?> signInAnonymously() async {
     try {
+      // Check connectivity before attempting sign in
+      if (!await isConnected) {
+        debugPrint('No internet connection available');
+        return null;
+      }
+      
       final userCredential = await auth.signInAnonymously();
       return userCredential;
     } catch (e) {

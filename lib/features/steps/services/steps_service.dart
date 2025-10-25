@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import '../../../core/services/firebase_service.dart';
 import '../models/steps_entry.dart';
 
@@ -29,7 +30,7 @@ class StepsService {
       await _stepsEntriesCollection.doc(entry.id).set(entry.toMap());
       return entry;
     } catch (e) {
-      print('Error adding steps entry: $e');
+      debugPrint('Error adding steps entry: $e');
       return null;
     }
   }
@@ -51,7 +52,7 @@ class StepsService {
       await _stepsEntriesCollection.doc(id).update(entry.toMap());
       return entry;
     } catch (e) {
-      print('Error updating steps entry: $e');
+      debugPrint('Error updating steps entry: $e');
       return null;
     }
   }
@@ -61,7 +62,7 @@ class StepsService {
       await _stepsEntriesCollection.doc(id).delete();
       return true;
     } catch (e) {
-      print('Error deleting steps entry: $e');
+      debugPrint('Error deleting steps entry: $e');
       return false;
     }
   }
@@ -71,16 +72,33 @@ class StepsService {
       final user = _firebaseService.currentUser;
       if (user == null) return [];
 
-      final querySnapshot = await _stepsEntriesCollection
-          .where('userId', isEqualTo: user.uid)
-          .orderBy('timestamp', descending: true)
-          .get();
+      QuerySnapshot querySnapshot;
+      try {
+        querySnapshot = await _stepsEntriesCollection
+            .where('userId', isEqualTo: user.uid)
+            .orderBy('timestamp', descending: true)
+            .get();
+      } catch (e) {
+        debugPrint('OrderBy query failed, trying without orderBy: $e');
+        // Fallback: Query without orderBy and sort in memory
+        querySnapshot = await _stepsEntriesCollection
+            .where('userId', isEqualTo: user.uid)
+            .get();
+        
+        final entries = querySnapshot.docs
+            .map((doc) => StepsEntry.fromMap(doc.data() as Map<String, dynamic>))
+            .toList();
+        
+        // Sort by timestamp in descending order
+        entries.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+        return entries;
+      }
 
       return querySnapshot.docs
           .map((doc) => StepsEntry.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      print('Error getting steps entries: $e');
+      debugPrint('Error getting steps entries: $e');
       return [];
     }
   }
@@ -88,16 +106,36 @@ class StepsService {
   Stream<List<StepsEntry>> getStepsEntriesStream() {
     final user = _firebaseService.currentUser;
     if (user == null) {
+      debugPrint('StepsService: User is null, returning empty stream');
       return Stream.value([]);
     }
 
+    debugPrint('StepsService: Listening to steps entries for user ${user.uid}');
+    
     return _stepsEntriesCollection
         .where('userId', isEqualTo: user.uid)
-        .orderBy('timestamp', descending: true)
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => StepsEntry.fromMap(doc.data() as Map<String, dynamic>))
-            .toList());
+        .map((snapshot) {
+          debugPrint('StepsService: Received ${snapshot.docs.length} steps entries');
+          final entries = snapshot.docs
+              .map((doc) {
+                try {
+                  return StepsEntry.fromMap(doc.data() as Map<String, dynamic>);
+                } catch (e) {
+                  debugPrint('Error parsing steps entry: $e');
+                  return null;
+                }
+              })
+              .where((entry) => entry != null)
+              .cast<StepsEntry>()
+              .toList();
+          // Sort by timestamp in descending order
+          entries.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+          return entries;
+        })
+        .handleError((error) {
+          debugPrint('Error in steps entries stream: $error');
+        });
   }
 
   Future<List<StepsEntry>> getHourlyStepsEntries() async {
@@ -120,7 +158,7 @@ class StepsService {
           .map((doc) => StepsEntry.fromMap(doc.data() as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      print('Error getting hourly steps entries: $e');
+      debugPrint('Error getting hourly steps entries: $e');
       return [];
     }
   }

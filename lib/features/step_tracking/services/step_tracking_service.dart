@@ -1,10 +1,15 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../../../core/database/database_helper.dart';
 import '../../../core/services/firebase_service.dart';
 import '../models/step_data.dart';
+import '../models/step_detection_config.dart';
+import '../models/walking_state.dart';
 import '../../steps/services/steps_service.dart';
+import 'advanced_step_detection_service.dart';
+import 'step_calibration_service.dart';
 
 class StepTrackingService {
   static final StepTrackingService _instance = StepTrackingService._internal();
@@ -14,22 +19,48 @@ class StepTrackingService {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
   final FirebaseService _firebaseService = FirebaseService();
   final StepsService _stepsService = StepsService();
+  final AdvancedStepDetectionService _advancedDetection = AdvancedStepDetectionService();
+  final StepCalibrationService _calibrationService = StepCalibrationService();
+  // final BackgroundServiceManager _backgroundManager = BackgroundServiceManager();
+  
   StreamSubscription<StepCount>? _stepCountStream;
   StreamSubscription<PedestrianStatus>? _pedestrianStatusStream;
+  StreamSubscription<int>? _advancedStepsSubscription;
+  StreamSubscription<WalkingStateData>? _walkingStateSubscription;
   
   int _currentSteps = 0;
   DateTime? _lastUpdateTime;
+  bool _useAdvancedDetection = true;
+  WalkingStateData? _currentWalkingState;
   
   // Getters
   int get currentSteps => _currentSteps;
   DateTime? get lastUpdateTime => _lastUpdateTime;
+  bool get useAdvancedDetection => _useAdvancedDetection;
+  WalkingStateData? get currentWalkingState => _currentWalkingState;
+  Future<bool> get isCalibrated async => await _calibrationService.loadConfiguration() != null;
+
+  /// Recalibrate the step detection
+  Future<void> recalibrate() async {
+    debugPrint('Recalibrating step detection...');
+    await _advancedDetection.recalibrate();
+  }
+
+  /// Reset step counters
+  void resetStepCounters() {
+    _advancedDetection.resetCounters();
+    _currentSteps = 0;
+    _lastUpdateTime = null;
+  }
 
   // Stream controllers for UI updates
   final StreamController<int> _stepsController = StreamController<int>.broadcast();
   final StreamController<PedestrianStatus> _statusController = StreamController<PedestrianStatus>.broadcast();
+  final StreamController<WalkingStateData> _walkingStateController = StreamController<WalkingStateData>.broadcast();
 
   Stream<int> get stepsStream => _stepsController.stream;
   Stream<PedestrianStatus> get statusStream => _statusController.stream;
+  Stream<WalkingStateData> get walkingStateStream => _walkingStateController.stream;
 
   Future<bool> requestPermissions() async {
     // Request activity recognition permission
@@ -44,55 +75,115 @@ class StepTrackingService {
 
   Future<void> startTracking() async {
     try {
+      // Initialize background service
+      // await _backgroundManager.initialize();
+      
       // Check permissions first
       if (!await isPermissionGranted()) {
         final granted = await requestPermissions();
         if (!granted) {
           // For demo purposes, start with mock data if permission not granted
-          print('Permission not granted, using mock data for demo');
+          debugPrint('Permission not granted, using mock data for demo');
           _startMockTracking();
           return;
         }
       }
 
-      // Pedometer doesn't need initialization in this version
+      // Load saved configuration
+      final savedConfig = await _calibrationService.loadConfiguration();
+      if (savedConfig != null) {
+        _advancedDetection.updateConfig(savedConfig);
+      }
 
-      // Listen to step count stream
-      _stepCountStream = Pedometer.stepCountStream.listen(
-        _onStepCount,
-        onError: _onStepCountError,
-      );
+      if (_useAdvancedDetection) {
+        // Use advanced step detection - don't fall back to traditional pedometer
+        await _startAdvancedTracking();
+        debugPrint('Advanced step detection started - only counting actual walking steps');
+      } else {
+        // Use traditional pedometer
+        await _startTraditionalTracking();
+        debugPrint('Traditional pedometer started');
+      }
 
-      // Listen to pedestrian status stream
-      _pedestrianStatusStream = Pedometer.pedestrianStatusStream.listen(
-        _onPedestrianStatus,
-        onError: _onPedestrianStatusError,
-      );
+      // Start background tracking (temporarily disabled)
+      // await _backgroundManager.startBackgroundTracking();
 
       // Load today's step data
       await _loadTodayStepData();
     } catch (e) {
-      print('Error starting step tracking: $e');
-      // Start with mock data if real tracking fails
-      _startMockTracking();
+      debugPrint('Error starting step tracking: $e');
+      // Only start mock tracking if advanced detection is not enabled
+      if (!_useAdvancedDetection) {
+        _startMockTracking();
+      } else {
+        debugPrint('Advanced detection failed, but not falling back to avoid false step counting');
+      }
     }
   }
 
+  Future<void> _startAdvancedTracking() async {
+    debugPrint('Starting advanced tracking...');
+    
+    // Start advanced detection
+    await _advancedDetection.startDetection();
+
+    // Listen to advanced step detection streams
+    _advancedStepsSubscription = _advancedDetection.stepsStream.listen(
+      _onAdvancedStepsUpdate,
+      onError: _onError,
+    );
+
+    _walkingStateSubscription = _advancedDetection.walkingStateStream.listen(
+      _onWalkingStateUpdate,
+      onError: _onError,
+    );
+    
+    debugPrint('Advanced tracking streams set up successfully');
+  }
+
+  Future<void> _startTraditionalTracking() async {
+    // Listen to step count stream
+    _stepCountStream = Pedometer.stepCountStream.listen(
+      _onStepCount,
+      onError: _onStepCountError,
+    );
+
+    // Listen to pedestrian status stream
+    _pedestrianStatusStream = Pedometer.pedestrianStatusStream.listen(
+      _onPedestrianStatus,
+      onError: _onPedestrianStatusError,
+    );
+  }
+
   void _startMockTracking() {
-    // Simulate step tracking with mock data for demo purposes
-    _currentSteps = 2500; // Start with some demo steps
+    // For demo purposes, start with some initial steps but don't auto-increment
+    _currentSteps = 0; // Start with 0 steps
     _stepsController.add(_currentSteps);
     
-    // Simulate periodic step updates
-    Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (_stepCountStream == null) {
-        _currentSteps += (1 + (DateTime.now().millisecond % 3)); // Add 1-3 steps
-        _stepsController.add(_currentSteps);
-        _saveStepData();
-      } else {
-        timer.cancel();
-      }
-    });
+    // Don't simulate automatic step increments - only count actual steps
+    debugPrint('Mock tracking started - steps will only be counted when actually walking');
+  }
+
+  void _onAdvancedStepsUpdate(int steps) {
+    debugPrint('Advanced steps update: $steps');
+    _currentSteps = steps;
+    _lastUpdateTime = DateTime.now();
+    
+    // Emit to stream
+    _stepsController.add(_currentSteps);
+    
+    // Save to local database
+    _saveStepData();
+    
+    // Save to Firestore if user is signed in
+    if (_firebaseService.isSignedIn) {
+      _stepsService.addStepsEntry(_currentSteps);
+    }
+  }
+
+  void _onWalkingStateUpdate(WalkingStateData stateData) {
+    _currentWalkingState = stateData;
+    _walkingStateController.add(stateData);
   }
 
   void _onStepCount(StepCount event) {
@@ -112,7 +203,7 @@ class StepTrackingService {
   }
 
   void _onStepCountError(error) {
-    print('Step count error: $error');
+    debugPrint('Step count error: $error');
   }
 
   void _onPedestrianStatus(PedestrianStatus event) {
@@ -120,7 +211,7 @@ class StepTrackingService {
   }
 
   void _onPedestrianStatusError(error) {
-    print('Pedestrian status error: $error');
+    debugPrint('Pedestrian status error: $error');
   }
 
   Future<void> _loadTodayStepData() async {
@@ -166,8 +257,18 @@ class StepTrackingService {
   Future<void> stopTracking() async {
     await _stepCountStream?.cancel();
     await _pedestrianStatusStream?.cancel();
+    await _advancedStepsSubscription?.cancel();
+    await _walkingStateSubscription?.cancel();
+    
     _stepCountStream = null;
     _pedestrianStatusStream = null;
+    _advancedStepsSubscription = null;
+    _walkingStateSubscription = null;
+    
+    await _advancedDetection.stopDetection();
+    
+    // Stop background tracking
+    // await _backgroundManager.stopBackgroundTracking();
   }
 
   Future<List<StepData>> getStepHistory({int days = 7}) async {
@@ -184,9 +285,94 @@ class StepTrackingService {
     return await _databaseHelper.getAllStepData();
   }
 
+  // Advanced detection methods
+  Future<void> startCalibration() async {
+    await _calibrationService.startCalibration();
+  }
+
+  void cancelCalibration() {
+    _calibrationService.cancelCalibration();
+  }
+
+  Stream<CalibrationProgress> get calibrationProgressStream => _calibrationService.progressStream;
+  Stream<CalibrationResult> get calibrationResultStream => _calibrationService.resultStream;
+
+  void toggleDetectionMode() {
+    _useAdvancedDetection = !_useAdvancedDetection;
+    // Restart tracking with new mode
+    stopTracking().then((_) => startTracking());
+  }
+
+  void forceAdvancedDetection() {
+    _useAdvancedDetection = true;
+    stopTracking().then((_) => startTracking());
+  }
+
+  void setSensitivity(double sensitivity) {
+    _advancedDetection.setSensitivity(sensitivity);
+  }
+
+  void resetSteps() {
+    _advancedDetection.resetSteps();
+    _currentSteps = 0;
+    _stepsController.add(_currentSteps);
+  }
+
+  Future<StepDetectionConfig?> getDetectionConfig() async {
+    return await _calibrationService.loadConfiguration();
+  }
+
+  Future<UserStepProfile?> getUserProfile() async {
+    return await _calibrationService.loadUserProfile();
+  }
+
+  // Background tracking methods
+  Future<void> syncBackgroundSteps() async {
+    try {
+      // final backgroundSteps = await _backgroundManager.getBackgroundStepCount();
+      final backgroundSteps = 0;
+      if (backgroundSteps > _currentSteps) {
+        _currentSteps = backgroundSteps;
+        _stepsController.add(_currentSteps);
+        _saveStepData();
+        debugPrint('Synced background steps: $backgroundSteps');
+      }
+    } catch (e) {
+      debugPrint('Error syncing background steps: $e');
+    }
+  }
+
+  Future<bool> isBackgroundTracking() async {
+    // return await _backgroundManager.isBackgroundTracking();
+    return false;
+  }
+
+  Future<int> getBackgroundStepCount() async {
+    // return await _backgroundManager.getBackgroundStepCount();
+    return 0;
+  }
+
+  Future<DateTime?> getBackgroundLastUpdate() async {
+    // return await _backgroundManager.getLastUpdate();
+    return null;
+  }
+
+  Future<void> resetBackgroundSteps() async {
+    // await _backgroundManager.resetBackgroundSteps();
+    _currentSteps = 0;
+    _stepsController.add(_currentSteps);
+  }
+
+  void _onError(dynamic error) {
+    debugPrint('Step tracking error: $error');
+  }
+
   void dispose() {
     _stepsController.close();
     _statusController.close();
+    _walkingStateController.close();
     stopTracking();
+    _advancedDetection.dispose();
+    _calibrationService.dispose();
   }
 }

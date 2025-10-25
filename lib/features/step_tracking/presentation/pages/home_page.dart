@@ -5,6 +5,7 @@ import '../widgets/step_counter_widget.dart';
 import '../widgets/progress_ring_widget.dart';
 import '../widgets/stats_card_widget.dart';
 import '../widgets/step_history_widget.dart';
+import '../widgets/location_permission_dialog.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,31 +15,79 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _hasShownLocationDialog = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<StepTrackingController>().startTracking();
+      _checkAndShowLocationDialog();
     });
+  }
+
+  Future<void> _checkAndShowLocationDialog() async {
+    if (_hasShownLocationDialog) return;
+    
+    final hasPermission = await LocationPermissionService.checkLocationPermission();
+    if (!hasPermission) {
+      _hasShownLocationDialog = true;
+      _showLocationPermissionDialog();
+    } else {
+      // Start tracking if permission is already granted
+      context.read<StepTrackingController>().startTracking();
+    }
+  }
+
+  void _showLocationPermissionDialog() {
+    if (!mounted) return;
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => LocationPermissionDialog(
+        onPermissionGranted: () {
+          if (!mounted) return;
+          // Start step tracking after permission is granted
+          context.read<StepTrackingController>().startTracking();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Location permission granted! Step tracking started.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        },
+        onPermissionDenied: () {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Location permission is required for accurate step tracking.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        },
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: const Text(
           'Steps Tracker',
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
           ),
         ),
-        backgroundColor: const Color(0xFF2E7D32),
+        backgroundColor: colorScheme.primary,
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
+            icon: const Icon(Icons.refresh),
             onPressed: () {
               context.read<StepTrackingController>().refreshData();
             },
@@ -47,7 +96,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Consumer<StepTrackingController>(
         builder: (context, controller, child) {
-          if (controller.errorMessage?.isNotEmpty == true) {
+          if (controller.errorMessage.isNotEmpty) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -64,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    controller.errorMessage ?? 'Unknown error',
+                    controller.errorMessage,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
@@ -96,18 +145,18 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         flex: 2,
                         child: ProgressRingWidget(
-                          progress: controller.progress ?? 0.0,
-                          steps: controller.currentSteps ?? 0,
-                          target: controller.targetSteps ?? 10000,
+                          progress: controller.progress,
+                          steps: controller.currentSteps,
+                          target: controller.targetSteps,
                         ),
                       ),
                       const SizedBox(width: 16),
                       Expanded(
                         flex: 3,
                         child: StepCounterWidget(
-                          currentSteps: controller.currentSteps ?? 0,
-                          targetSteps: controller.targetSteps ?? 10000,
-                          progress: controller.progress ?? 0.0,
+                          currentSteps: controller.currentSteps,
+                          targetSteps: controller.targetSteps,
+                          progress: controller.progress,
                           pedestrianStatus: controller.pedestrianStatus,
                         ),
                       ),
@@ -122,7 +171,7 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: StatsCardWidget(
                           title: 'Remaining',
-                          value: controller.getRemainingSteps() ?? '0',
+                          value: controller.getRemainingSteps(),
                           icon: Icons.directions_walk,
                           color: Colors.orange,
                         ),
@@ -131,7 +180,7 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: StatsCardWidget(
                           title: 'Progress',
-                          value: controller.getProgressPercentage() ?? '0%',
+                          value: controller.getProgressPercentage(),
                           icon: Icons.trending_up,
                           color: Colors.green,
                         ),
@@ -149,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  StepHistoryWidget(stepHistory: controller.stepHistory ?? []),
+                  StepHistoryWidget(stepHistory: controller.stepHistory),
                   
                   const SizedBox(height: 24),
                   
@@ -158,18 +207,20 @@ class _HomePageState extends State<HomePage> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: (controller.isTracking ?? false) ? Colors.green.shade50 : Colors.orange.shade50,
+                      color: controller.isTracking 
+                          ? Colors.green.withOpacity(0.1) 
+                          : Colors.orange.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: (controller.isTracking ?? false) ? Colors.green : Colors.orange,
+                        color: controller.isTracking ? Colors.green : Colors.orange,
                         width: 1,
                       ),
                     ),
                     child: Row(
                       children: [
                         Icon(
-                          (controller.isTracking ?? false) ? Icons.play_circle : Icons.pause_circle,
-                          color: (controller.isTracking ?? false) ? Colors.green : Colors.orange,
+                          controller.isTracking ? Icons.play_circle : Icons.pause_circle,
+                          color: controller.isTracking ? Colors.green : Colors.orange,
                           size: 24,
                         ),
                         const SizedBox(width: 12),
@@ -178,18 +229,19 @@ class _HomePageState extends State<HomePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                (controller.isTracking ?? false) ? 'Tracking Active' : 'Tracking Paused',
-                                style: const TextStyle(
+                                controller.isTracking ? 'Tracking Active' : 'Tracking Paused',
+                                style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
+                                  color: colorScheme.onSurface,
                                 ),
                               ),
                               Text(
-                                (controller.isTracking ?? false) 
+                                controller.isTracking 
                                   ? 'Your steps are being counted'
                                   : 'Tap to start tracking your steps',
                                 style: TextStyle(
-                                  color: Colors.grey.shade600,
+                                  color: colorScheme.onSurface.withOpacity(0.7),
                                   fontSize: 14,
                                 ),
                               ),
@@ -198,15 +250,15 @@ class _HomePageState extends State<HomePage> {
                         ),
                         IconButton(
                           onPressed: () {
-                            if (controller.isTracking ?? false) {
+                            if (controller.isTracking) {
                               controller.stopTracking();
                             } else {
                               controller.startTracking();
                             }
                           },
                           icon: Icon(
-                            (controller.isTracking ?? false) ? Icons.pause : Icons.play_arrow,
-                            color: (controller.isTracking ?? false) ? Colors.green : Colors.orange,
+                            controller.isTracking ? Icons.pause : Icons.play_arrow,
+                            color: controller.isTracking ? Colors.green : Colors.orange,
                           ),
                         ),
                       ],

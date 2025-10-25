@@ -17,14 +17,16 @@ class StepCounterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: colorScheme.shadow.withOpacity(0.1),
             spreadRadius: 1,
             blurRadius: 10,
             offset: const Offset(0, 2),
@@ -38,7 +40,7 @@ class StepCounterWidget extends StatelessWidget {
             children: [
               Icon(
                 Icons.directions_walk,
-                color: const Color(0xFF2E7D32),
+                color: colorScheme.primary,
                 size: 24,
               ),
               const SizedBox(width: 8),
@@ -47,7 +49,7 @@ class StepCounterWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade700,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],
@@ -55,10 +57,10 @@ class StepCounterWidget extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             _formatSteps(currentSteps),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF2E7D32),
+              color: colorScheme.primary,
             ),
           ),
           const SizedBox(height: 8),
@@ -66,7 +68,7 @@ class StepCounterWidget extends StatelessWidget {
             'of ${_formatSteps(targetSteps)} goal',
             style: TextStyle(
               fontSize: 14,
-              color: Colors.grey.shade600,
+              color: colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 16),
@@ -75,7 +77,7 @@ class StepCounterWidget extends StatelessWidget {
             height: 6,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(3),
-              color: Colors.grey.shade200,
+              color: colorScheme.surfaceContainerHighest,
             ),
             child: FractionallySizedBox(
               alignment: Alignment.centerLeft,
@@ -83,7 +85,7 @@ class StepCounterWidget extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(3),
-                  color: progress >= 1.0 ? Colors.green : const Color(0xFF2E7D32),
+                  color: progress >= 1.0 ? Colors.green : colorScheme.primary,
                 ),
               ),
             ),
