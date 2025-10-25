@@ -1,0 +1,123 @@
+/// English translations for the Steps Tracker app
+class AppTranslationsEn {
+  static const Map<String, String> translations = {
+    // App
+    'app_title': 'Steps Tracker',
+    
+    // Auth
+    'welcome': 'Welcome to Steps Tracker!',
+    'get_started': 'Get Started',
+    'track_your_steps': 'Track your daily steps and fitness goals',
+    'sign_in_anonymously': 'Sign in anonymously to start tracking your steps',
+    
+    // Profile
+    'complete_profile': 'Complete Your Profile',
+    'please_fill_profile': 'Please fill out your profile information to get started',
+    'full_name': 'Full Name',
+    'enter_name': 'Enter your full name',
+    'weight_kg': 'Weight (kg)',
+    'enter_weight': 'Enter your weight in kilograms',
+    'complete_profile_btn': 'Complete Profile',
+    
+    // Navigation
+    'home': 'Home',
+    'steps': 'Steps',
+    'weight': 'Weight',
+    'settings': 'Settings',
+    'steps_tracker': 'Steps Tracker',
+    'steps_today': 'Steps Today',
+    'of_goal': 'of {count} goal',
+    
+    // Weight Entries
+    'weight_entries': 'Weight Entries',
+    'add_weight_entry': 'Add Weight Entry',
+    'edit_weight_entry': 'Edit Weight Entry',
+    'delete_weight_entry': 'Delete Weight Entry',
+    'no_weight_entries': 'No weight entries yet',
+    'add_first_weight': 'Add your first weight entry to get started',
+    'weight_added': 'Weight entry added successfully',
+    'weight_updated': 'Weight entry updated successfully',
+    'weight_deleted': 'Weight entry deleted successfully',
+    'delete_weight_confirmation': 'Are you sure you want to delete this weight entry of {weight} kg?',
+    
+    // Steps Entries
+    'steps_entries': 'Steps Entries',
+    'add_steps_entry': 'Add Steps Entry',
+    'edit_steps_entry': 'Edit Steps Entry',
+    'delete_steps_entry': 'Delete Steps Entry',
+    'no_steps_entries': 'No steps entries yet',
+    'add_first_steps': 'Add your first steps entry to get started',
+    'steps_added': 'Steps entry added successfully',
+    'steps_updated': 'Steps entry updated successfully',
+    'steps_deleted': 'Steps entry deleted successfully',
+    'delete_steps_confirmation': 'Are you sure you want to delete this entry of {steps} steps?',
+    'enter_steps': 'Enter number of steps',
+    'please_enter_steps': 'Please enter the number of steps',
+    
+    // Tracking
+    'tracking_active': 'Tracking Active',
+    'tracking_paused': 'Tracking Paused',
+    'steps_being_counted': 'Your steps are being counted',
+    'tap_to_start': 'Tap to start tracking your steps',
+    'walking': 'Walking',
+    'stopped': 'Stopped',
+    
+    // Stats
+    'daily_goal': 'Daily Goal',
+    'complete': 'Complete',
+    'progress': 'Progress',
+    'remaining_steps': 'Remaining Steps',
+    'distance': 'Distance',
+    'calories': 'Calories',
+    
+    // Settings
+    'appearance': 'Appearance',
+    'dark_mode': 'Dark Mode',
+    'light_mode': 'Light Mode',
+    'language': 'Language',
+    'english': 'English',
+    'arabic': 'Arabic',
+    'account': 'Account',
+    'name': 'Name',
+    'app_info': 'App Information',
+    'version': 'Version',
+    'build': 'Build',
+    'developer': 'Developer',
+    'steps_tracker_team': 'Steps Tracker Team',
+    
+    // Actions
+    'add': 'Add',
+    'edit': 'Edit',
+    'delete': 'Delete',
+    'update': 'Update',
+    'cancel': 'Cancel',
+    'save': 'Save',
+    'sign_out': 'Sign Out',
+    'sign_out_confirmation': 'Are you sure you want to sign out?',
+    'refresh': 'Refresh',
+    
+    // Messages
+    'success': 'Success',
+    'error': 'Error',
+    'loading': 'Loading...',
+    'retry': 'Retry',
+    'no_data': 'No data available',
+    
+    // Time
+    'just_now': 'Just now',
+    'minutes_ago': '{minutes}m ago',
+    'hours_ago': '{hours}h ago',
+    'days_ago': '{days}d ago',
+    
+    // Profile
+    'profile_created': 'Profile created successfully',
+    
+    // Validation
+    'please_enter_name': 'Please enter your name',
+    'please_enter_weight': 'Please enter your weight',
+    'please_enter_valid_weight': 'Please enter a valid weight',
+    'please_enter_valid_steps': 'Please enter a valid number of steps',
+    'weight_too_large': 'Please enter a realistic weight',
+    'steps_too_large': 'Please enter a realistic number of steps',
+  };
+}

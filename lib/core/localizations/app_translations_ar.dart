@@ -1,0 +1,123 @@
+/// Arabic translations for the Steps Tracker app
+class AppTranslationsAr {
+  static const Map<String, String> translations = {
+    // App
+    'app_title': 'متتبع الخطوات',
+    
+    // Auth
+    'welcome': 'مرحباً بك في متتبع الخطوات!',
+    'get_started': 'ابدأ الآن',
+    'track_your_steps': 'تتبع خطواتك اليومية وأهدافك الرياضية',
+    'sign_in_anonymously': 'سجل الدخول بشكل مجهول لبدء تتبع خطواتك',
+    
+    // Profile
+    'complete_profile': 'أكمل ملفك الشخصي',
+    'please_fill_profile': 'يرجى ملء معلومات ملفك الشخصي للبدء',
+    'full_name': 'الاسم الكامل',
+    'enter_name': 'أدخل اسمك الكامل',
+    'weight_kg': 'الوزن (كيلو)',
+    'enter_weight': 'أدخل وزنك بالكيلو',
+    'complete_profile_btn': 'أكمل الملف الشخصي',
+    
+    // Navigation
+    'home': 'الرئيسية',
+    'steps': 'الخطوات',
+    'weight': 'الوزن',
+    'settings': 'الإعدادات',
+    'steps_tracker': 'متتبع الخطوات',
+    'steps_today': 'الخطوات اليوم',
+    'of_goal': 'من {count} هدف',
+    
+    // Weight Entries
+    'weight_entries': 'سجلات الوزن',
+    'add_weight_entry': 'إضافة سجل وزن',
+    'edit_weight_entry': 'تعديل سجل الوزن',
+    'delete_weight_entry': 'حذف سجل الوزن',
+    'no_weight_entries': 'لا توجد سجلات وزن بعد',
+    'add_first_weight': 'أضف أول سجل وزن للبدء',
+    'weight_added': 'تم إضافة سجل الوزن بنجاح',
+    'weight_updated': 'تم تحديث سجل الوزن بنجاح',
+    'weight_deleted': 'تم حذف سجل الوزن بنجاح',
+    'delete_weight_confirmation': 'هل أنت متأكد من حذف سجل الوزن {weight} كيلو؟',
+    
+    // Steps Entries
+    'steps_entries': 'سجلات الخطوات',
+    'add_steps_entry': 'إضافة سجل خطوات',
+    'edit_steps_entry': 'تعديل سجل الخطوات',
+    'delete_steps_entry': 'حذف سجل الخطوات',
+    'no_steps_entries': 'لا توجد سجلات خطوات بعد',
+    'add_first_steps': 'أضف أول سجل خطوات للبدء',
+    'steps_added': 'تم إضافة سجل الخطوات بنجاح',
+    'steps_updated': 'تم تحديث سجل الخطوات بنجاح',
+    'steps_deleted': 'تم حذف سجل الخطوات بنجاح',
+    'delete_steps_confirmation': 'هل أنت متأكد من حذف سجل {steps} خطوة؟',
+    'enter_steps': 'أدخل عدد الخطوات',
+    'please_enter_steps': 'يرجى إدخال عدد الخطوات',
+    
+    // Tracking
+    'tracking_active': 'التتبع نشط',
+    'tracking_paused': 'التتبع متوقف',
+    'steps_being_counted': 'يتم عد خطواتك',
+    'tap_to_start': 'اضغط لبدء تتبع خطواتك',
+    'walking': 'تمشي',
+    'stopped': 'متوقف',
+    
+    // Stats
+    'daily_goal': 'الهدف اليومي',
+    'complete': 'مكتمل',
+    'progress': 'التقدم',
+    'remaining_steps': 'الخطوات المتبقية',
+    'distance': 'المسافة',
+    'calories': 'السعرات الحرارية',
+    
+    // Settings
+    'appearance': 'المظهر',
+    'dark_mode': 'الوضع المظلم',
+    'light_mode': 'الوضع المضيء',
+    'language': 'اللغة',
+    'english': 'إنجليزي',
+    'arabic': 'عربي',
+    'account': 'الحساب',
+    'name': 'الاسم',
+    'app_info': 'معلومات التطبيق',
+    'version': 'الإصدار',
+    'build': 'البناء',
+    'developer': 'المطور',
+    'steps_tracker_team': 'فريق متتبع الخطوات',
+    
+    // Actions
+    'add': 'إضافة',
+    'edit': 'تعديل',
+    'delete': 'حذف',
+    'update': 'تحديث',
+    'cancel': 'إلغاء',
+    'save': 'حفظ',
+    'sign_out': 'تسجيل الخروج',
+    'sign_out_confirmation': 'هل أنت متأكد من تسجيل الخروج؟',
+    'refresh': 'تحديث',
+    
+    // Messages
+    'success': 'نجح',
+    'error': 'خطأ',
+    'loading': 'جاري التحميل...',
+    'retry': 'إعادة المحاولة',
+    'no_data': 'لا توجد بيانات متاحة',
+    
+    // Time
+    'just_now': 'الآن',
+    'minutes_ago': 'منذ {minutes} دقيقة',
+    'hours_ago': 'منذ {hours} ساعة',
+    'days_ago': 'منذ {days} يوم',
+    
+    // Profile
+    'profile_created': 'تم إنشاء الملف الشخصي بنجاح',
+    
+    // Validation
+    'please_enter_name': 'يرجى إدخال اسمك',
+    'please_enter_weight': 'يرجى إدخال وزنك',
+    'please_enter_valid_weight': 'يرجى إدخال وزن صحيح',
+    'please_enter_valid_steps': 'يرجى إدخال عدد صحيح من الخطوات',
+    'weight_too_large': 'يرجى إدخال وزن واقعي',
+    'steps_too_large': 'يرجى إدخال عدد واقعي من الخطوات',
+  };
+}
