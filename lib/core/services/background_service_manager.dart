@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-// import 'package:flutter_background_service/flutter_background_service.dart';
 import 'background_step_service.dart';
 
 class BackgroundServiceManager {
@@ -82,7 +81,6 @@ class BackgroundServiceManager {
   }
 
   Future<bool> isServiceRunning() async {
-    // Background service temporarily disabled
     return false;
   }
 

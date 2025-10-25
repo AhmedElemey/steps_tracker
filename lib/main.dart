@@ -25,16 +25,6 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Initialize Firebase and Sync services (async to speed up startup)
-  // final firebaseService = FirebaseService();
-  // await firebaseService.initialize();
-  
-  // final syncService = SyncService();
-  // await syncService.initialize();
-  
-  // Initialize background service (temporarily disabled)
-  // final backgroundManager = BackgroundServiceManager();
-  // await backgroundManager.initialize();
   
   runApp(const StepsTrackerApp());
 }

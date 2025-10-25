@@ -258,9 +258,9 @@ class AdvancedStepDetectionService {
     final minThreshold = _config.adjustedMinMagnitude;
     final maxThreshold = _config.adjustedMaxMagnitude;
     
-    // More lenient validation - allow some variation around baseline
-    final lowerBound = (baseline - 2.0).clamp(minThreshold, baseline);
-    final upperBound = (baseline + 5.0).clamp(baseline, maxThreshold);
+    // Much more lenient validation - allow wide variation around baseline
+    final lowerBound = (baseline - 3.0).clamp(minThreshold, baseline);
+    final upperBound = (baseline + 8.0).clamp(baseline, maxThreshold);
     
     // Only process data within valid range
     return magnitude >= lowerBound && magnitude <= upperBound;
@@ -268,7 +268,7 @@ class AdvancedStepDetectionService {
 
   /// Check if current reading is a peak
   bool _isPeak(AccelerometerData data) {
-    if (_magnitudeBuffer.length < 5) return false;
+    if (_magnitudeBuffer.length < 3) return false;
 
     final current = data.magnitude;
     final bufferSize = _magnitudeBuffer.length;
@@ -282,16 +282,16 @@ class AdvancedStepDetectionService {
     final baseline = _config.userBaselineMagnitude;
     final peakThreshold = baseline + _config.adjustedPeakThreshold;
     
-    // More robust peak detection with proper buffer indexing
+    // Much more sensitive peak detection
     return current > previous && 
            current > next && 
            current > peakThreshold &&
-           (current - baseline) > 0.5; // Ensure significant deviation from baseline
+           (current - baseline) > 0.2; // Reduced threshold for better sensitivity
   }
 
   /// Check if current reading is a valley
   bool _isValley(AccelerometerData data) {
-    if (_magnitudeBuffer.length < 5) return false;
+    if (_magnitudeBuffer.length < 3) return false;
 
     final current = data.magnitude;
     final bufferSize = _magnitudeBuffer.length;
@@ -305,11 +305,11 @@ class AdvancedStepDetectionService {
     final baseline = _config.userBaselineMagnitude;
     final valleyThreshold = baseline - _config.adjustedValleyThreshold;
     
-    // More robust valley detection with proper buffer indexing
+    // Much more sensitive valley detection
     return current < previous && 
            current < next && 
            current < valleyThreshold &&
-           (baseline - current) > 0.3; // Ensure significant deviation from baseline
+           (baseline - current) > 0.1; // Reduced threshold for better sensitivity
   }
 
   /// Handle peak detection
@@ -337,7 +337,7 @@ class AdvancedStepDetectionService {
 
     // Check time interval between peak and valley (should be short for a single step)
     final peakValleyInterval = _lastValleyTime!.difference(_lastPeakTime!).inMilliseconds;
-    if (peakValleyInterval < 50 || peakValleyInterval > 500) { // 50-500ms for peak-valley interval
+    if (peakValleyInterval < 30 || peakValleyInterval > 800) { // More lenient: 30-800ms for peak-valley interval
       return false;
     }
 
@@ -352,69 +352,20 @@ class AdvancedStepDetectionService {
     // Check magnitude difference with dynamic threshold
     final magnitudeDifference = _lastPeakValue - _lastValleyValue;
     final baseline = _config.userBaselineMagnitude;
-    final minDifference = baseline * 0.05; // 5% of baseline as minimum difference
+    final minDifference = baseline * 0.02; // Reduced to 2% of baseline as minimum difference
     
     if (magnitudeDifference < minDifference) {
       return false;
     }
 
     // Ensure we have enough data for analysis
-    if (_magnitudeBuffer.length < 10) return false;
+    if (_magnitudeBuffer.length < 5) return false;
 
-    // Additional validation: check for consistent walking pattern
-    if (!_hasConsistentWalkingPattern()) {
-      return false;
-    }
-
+    // Simplified validation - remove complex walking pattern check for now
     debugPrint('Valid step detected: peak=$_lastPeakValue, valley=$_lastValleyValue, diff=$magnitudeDifference, interval=${peakValleyInterval}ms');
     return true;
   }
 
-  /// Check if recent data shows consistent walking pattern
-  bool _hasConsistentWalkingPattern() {
-    if (_magnitudeBuffer.length < 15) return false;
-    
-    // Get last 15 readings for better analysis (most recent data)
-    final recentData = _magnitudeBuffer.length > 15 
-        ? _magnitudeBuffer.sublist(_magnitudeBuffer.length - 15)
-        : _magnitudeBuffer.toList();
-    final baseline = _config.userBaselineMagnitude;
-    
-    // Calculate statistics
-    final mean = recentData.reduce((a, b) => a + b) / recentData.length;
-    final variance = recentData.map((x) => pow(x - mean, 2)).reduce((a, b) => a + b) / recentData.length;
-    final standardDeviation = sqrt(variance);
-    
-    // Check for walking characteristics:
-    // 1. Moderate variation (not too static, not too chaotic)
-    // 2. Mean should be close to user's baseline
-    // 3. Should have some peaks and valleys
-    
-    final meanDeviationFromBaseline = (mean - baseline).abs();
-    final hasReasonableVariation = standardDeviation > 0.2 && standardDeviation < 1.5;
-    final hasReasonableMean = meanDeviationFromBaseline < 1.0;
-    
-    // Count peaks and valleys in recent data
-    int peakCount = 0;
-    int valleyCount = 0;
-    
-    for (int i = 1; i < recentData.length - 1; i++) {
-      final current = recentData[i];
-      final previous = recentData[i - 1];
-      final next = recentData[i + 1];
-      
-      if (current > previous && current > next && (current - baseline) > 0.3) {
-        peakCount++;
-      }
-      if (current < previous && current < next && (baseline - current) > 0.2) {
-        valleyCount++;
-      }
-    }
-    
-    final hasPeaksAndValleys = peakCount >= 2 && valleyCount >= 2;
-    
-    return hasReasonableVariation && hasReasonableMean && hasPeaksAndValleys;
-  }
 
   /// Record a valid step
   void _recordStep(DateTime timestamp) {

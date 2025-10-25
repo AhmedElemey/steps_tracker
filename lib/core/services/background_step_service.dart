@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 // import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sensors_plus/sensors_plus.dart';
 import '../../features/step_tracking/models/accelerometer_data.dart';
 
 class BackgroundStepService {
@@ -46,123 +45,17 @@ class BackgroundStepService {
     await prefs.setInt(_stepCountKey, 0);
     await prefs.setInt(_lastUpdateKey, DateTime.now().millisecondsSinceEpoch);
     
-    // Background service temporarily disabled
-    // final service = FlutterBackgroundService();
-    // service.invoke('reset_steps');
   }
 }
 
 @pragma('vm:entry-point')
 void onStart(dynamic service) async {
-  // Background service temporarily disabled
   debugPrint('Background service onStart skipped');
   return;
-  
-  // Note: The following code is unreachable due to the return statement above
-  // but is kept for future implementation
-  /*
-  // Initialize step detection variables
-  int stepCount = 0;
-  DateTime? lastStepTime;
-  int consecutiveSteps = 0;
-  
-  // Peak detection variables
-  bool isLookingForPeak = true;
-  double lastPeakValue = 0.0;
-  double lastValleyValue = 0.0;
-  DateTime? lastPeakTime;
-  DateTime? lastValleyTime;
-  
-  // Data buffers
-  final List<double> magnitudeBuffer = [];
-  const int bufferSize = 50;
-  
-  bool isTracking = false;
-  
-  // Load existing step count
-  final prefs = await SharedPreferences.getInstance();
-  stepCount = prefs.getInt(BackgroundStepService._stepCountKey) ?? 0;
-  
-  // Listen to service commands
-  service.on('start_tracking').listen((event) async {
-    isTracking = true;
-    debugPrint('Background tracking started');
-  });
-  
-  service.on('stop_tracking').listen((event) async {
-    isTracking = false;
-    debugPrint('Background tracking stopped');
-  });
-  
-  service.on('reset_steps').listen((event) async {
-    stepCount = 0;
-    consecutiveSteps = 0;
-    lastStepTime = null;
-    await _saveStepCount(stepCount);
-    debugPrint('Background steps reset');
-  });
-  
-  // Start accelerometer monitoring
-  try {
-    accelerometerEventStream().listen(
-      (event) async {
-        if (!isTracking) return;
-        
-        final accelerometerData = AccelerometerData(
-          x: event.x,
-          y: event.y,
-          z: event.z,
-          timestamp: DateTime.now(),
-        );
-        
-        // Add to buffer
-        magnitudeBuffer.add(accelerometerData.magnitude);
-        if (magnitudeBuffer.length > bufferSize) {
-          magnitudeBuffer.removeAt(0);
-        }
-        
-        // Process step detection
-        if (_isValidMovement(accelerometerData.magnitude)) {
-          if (isLookingForPeak) {
-            if (_isPeak(accelerometerData, magnitudeBuffer)) {
-              lastPeakValue = accelerometerData.magnitude;
-              lastPeakTime = accelerometerData.timestamp;
-              isLookingForPeak = false;
-            }
-          } else {
-            if (_isValley(accelerometerData, magnitudeBuffer)) {
-              lastValleyValue = accelerometerData.magnitude;
-              lastValleyTime = accelerometerData.timestamp;
-              isLookingForPeak = true;
-              
-              // Check if this represents a valid step
-              if (_isValidStep(lastPeakTime, lastValleyTime, lastPeakValue, lastValleyValue, lastStepTime)) {
-                stepCount++;
-                consecutiveSteps++;
-                lastStepTime = accelerometerData.timestamp;
-                
-                // Save step count
-                await _saveStepCount(stepCount);
-                
-                debugPrint('Background step recorded: $stepCount');
-              }
-            }
-          }
-        }
-      },
-      onError: (error) {
-        debugPrint('Background accelerometer error: $error');
-      },
-    );
-  } catch (e) {
-    debugPrint('Error starting accelerometer monitoring: $e');
-  }
-  */
 }
 
 @pragma('vm:entry-point')
 Future<bool> onIosBackground(dynamic service) async {
-  // Background service temporarily disabled
   return true;
 }
 

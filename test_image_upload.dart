@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'lib/core/services/firestore_image_service.dart';
 import 'lib/features/profile/services/profile_service.dart';
 
 /// Simple test to verify the image upload fallback system
