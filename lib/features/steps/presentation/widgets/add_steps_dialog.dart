@@ -38,8 +38,6 @@ class _AddStepsDialogState extends State<AddStepsDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
     return AlertDialog(
       title: Text(
         widget.isEditing ? 'Edit Steps Entry' : 'Add Steps Entry',
@@ -121,8 +119,8 @@ class _AddStepsDialogState extends State<AddStepsDialog> {
             return ElevatedButton(
               onPressed: stepsController.isLoading ? null : _submitForm,
               style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
+                backgroundColor: const Color(0xFF2E7D32),
+                foregroundColor: Colors.white,
               ),
               child: stepsController.isLoading
                   ? const SizedBox(

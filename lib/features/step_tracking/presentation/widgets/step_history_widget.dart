@@ -86,12 +86,12 @@ class StepHistoryWidget extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: isToday ? colorScheme.primary.withOpacity(0.1) : colorScheme.surface.withOpacity(0.5),
+                    color: isToday ? const Color(0xFF2E7D32).withOpacity(0.1) : colorScheme.surface.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Icon(
                     Icons.directions_walk,
-                    color: isToday ? colorScheme.primary : colorScheme.onSurface.withOpacity(0.4),
+                    color: isToday ? const Color(0xFF2E7D32) : colorScheme.onSurface.withOpacity(0.4),
                     size: 20,
                   ),
                 ),
@@ -104,7 +104,7 @@ class StepHistoryWidget extends StatelessWidget {
                         dayName,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          color: isToday ? colorScheme.primary : colorScheme.onSurface,
+                          color: isToday ? const Color(0xFF2E7D32) : colorScheme.onSurface,
                         ),
                       ),
                       Text(

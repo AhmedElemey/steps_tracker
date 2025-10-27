@@ -38,9 +38,9 @@ class StepCounterWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.directions_walk,
-                color: colorScheme.primary,
+                color: Color(0xFF2E7D32),
                 size: 24,
               ),
               const SizedBox(width: 8),
@@ -57,10 +57,10 @@ class StepCounterWidget extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             _formatSteps(currentSteps),
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: colorScheme.primary,
+              color: Color(0xFF2E7D32),
             ),
           ),
           const SizedBox(height: 8),
@@ -85,7 +85,7 @@ class StepCounterWidget extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(3),
-                  color: progress >= 1.0 ? Colors.green : colorScheme.primary,
+                  color: progress >= 1.0 ? Colors.green : const Color(0xFF2E7D32),
                 ),
               ),
             ),

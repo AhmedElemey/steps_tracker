@@ -25,7 +25,7 @@ class _GoalsPageState extends State<GoalsPage> {
       appBar: AppBar(
         title: const Text('Goals'),
         backgroundColor: const Color(0xFF2E7D32),
-        foregroundColor: Colors.white,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),

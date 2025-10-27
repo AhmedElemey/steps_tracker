@@ -57,7 +57,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: colorScheme.primary,
+                color: const Color(0xFF2E7D32),
                 width: 3,
               ),
               boxShadow: [
@@ -84,7 +84,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             child: LinearProgressIndicator(
               value: _uploadProgress,
               backgroundColor: colorScheme.surfaceContainer,
-              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2E7D32)),
             ),
           ),
           const SizedBox(height: 4),
@@ -118,8 +118,8 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             icon: const Icon(Icons.camera_alt, size: 16),
             label: const Text('Change Photo'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
+              backgroundColor: const Color(0xFF2E7D32),
+              foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
@@ -159,7 +159,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                 child: Center(
                   child: CircularProgressIndicator(
                     backgroundColor: colorScheme.surfaceContainer,
-                    valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2E7D32)),
                   ),
                 ),
               );
@@ -195,7 +195,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                         loadingProgress.expectedTotalBytes!
                     : null,
                 backgroundColor: colorScheme.surfaceContainer,
-                valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2E7D32)),
               ),
             ),
           );
@@ -345,7 +345,7 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
             Icon(
               icon,
               size: 32,
-              color: colorScheme.primary,
+              color: const Color(0xFF2E7D32),
             ),
             const SizedBox(height: 8),
             Text(

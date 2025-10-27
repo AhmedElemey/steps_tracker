@@ -51,6 +51,9 @@ class StepsTrackerApp extends StatelessWidget {
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2E7D32)),
               useMaterial3: true,
+              appBarTheme: const AppBarTheme(
+                foregroundColor: Colors.white,
+              ),
             ),
             darkTheme: ThemeData(
               colorScheme: ColorScheme.fromSeed(
@@ -58,6 +61,9 @@ class StepsTrackerApp extends StatelessWidget {
                 brightness: Brightness.dark,
               ),
               useMaterial3: true,
+              appBarTheme: const AppBarTheme(
+                foregroundColor: Colors.black,
+              ),
             ),
             themeMode: themeController.themeMode,
             locale: localizationService.locale,
@@ -175,7 +181,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         },
         type: BottomNavigationBarType.fixed,
         backgroundColor: colorScheme.surface,
-        selectedItemColor: colorScheme.primary,
+        selectedItemColor: const Color(0xFF2E7D32),
         unselectedItemColor: colorScheme.onSurface.withOpacity(0.6),
         items: const [
           BottomNavigationBarItem(

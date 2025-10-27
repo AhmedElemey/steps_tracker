@@ -34,7 +34,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: colorScheme.primary,
+        backgroundColor: const Color(0xFF2E7D32),
         elevation: 0,
         automaticallyImplyLeading: false,
       ),
@@ -67,7 +67,7 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                         Icon(
                           Icons.person_add,
                           size: 64,
-                          color: colorScheme.primary,
+                          color: const Color(0xFF2E7D32),
                         ),
                         const SizedBox(height: 16),
                         const Text(
@@ -197,8 +197,8 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                   ElevatedButton(
                     onPressed: authController.isLoading ? null : _submitForm,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary,
-                      foregroundColor: colorScheme.onPrimary,
+                      backgroundColor: const Color(0xFF2E7D32),
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),

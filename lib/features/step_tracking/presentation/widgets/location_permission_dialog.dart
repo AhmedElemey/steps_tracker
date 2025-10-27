@@ -19,9 +19,9 @@ class LocationPermissionDialog extends StatelessWidget {
       ),
       title: Row(
         children: [
-          Icon(
+          const Icon(
             Icons.location_on,
-            color: Theme.of(context).colorScheme.primary,
+            color: Color(0xFF2E7D32),
             size: 28,
           ),
           const SizedBox(width: 12),
@@ -108,7 +108,7 @@ class LocationPermissionDialog extends StatelessWidget {
             await _requestLocationPermission();
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: const Color(0xFF2E7D32),
             foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),

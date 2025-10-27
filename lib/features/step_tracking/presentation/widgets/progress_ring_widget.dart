@@ -54,30 +54,33 @@ class ProgressRingWidget extends StatelessWidget {
                     value: progress,
                     strokeWidth: 8,
                     backgroundColor: colorScheme.surfaceContainerHighest,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      progress >= 1.0 ? Colors.green : colorScheme.primary,
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                      Color(0xFF2E7D32),
                     ),
                   ),
                 ),
                 // Center content
-                Center(
+                Positioned(
+                  left: 0,
+                  right: 0,
+               top: 35,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         '${(progress * 100).toStringAsFixed(0)}%',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: colorScheme.primary,
+                          color: Color(0xFF2E7D32),
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         'Complete',
                         style: TextStyle(
                           fontSize: 12,
-                          color: colorScheme.onSurface.withOpacity(0.6),
+                          color: colorScheme.onSurface.withOpacity(0.8),
                         ),
                       ),
                     ],
@@ -90,8 +93,8 @@ class ProgressRingWidget extends StatelessWidget {
           Text(
             'Daily Goal',
             style: TextStyle(
-              fontSize: 14,
-              color: colorScheme.onSurface.withOpacity(0.7),
+              fontSize: 16,
+              color: colorScheme.onSurface,
               fontWeight: FontWeight.w500,
             ),
           ),

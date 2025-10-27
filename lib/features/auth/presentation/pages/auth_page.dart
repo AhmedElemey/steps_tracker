@@ -40,22 +40,22 @@ class AuthPage extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
-                            color: colorScheme.primary.withOpacity(0.1),
+                            color: const Color(0xFF2E7D32).withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.directions_walk,
                             size: 64,
-                            color: colorScheme.primary,
+                            color: Color(0xFF2E7D32),
                           ),
                         ),
                         const SizedBox(height: 24),
-                        Text(
+                        const Text(
                           'Steps Tracker',
                           style: TextStyle(
                             fontSize: 32,
                             fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
+                            color: Color(0xFF2E7D32),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -155,8 +155,8 @@ class AuthPage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: authController.isLoading ? null : () => _signInAnonymously(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary,
-                      foregroundColor: colorScheme.onPrimary,
+                      backgroundColor: const Color(0xFF2E7D32),
+                      foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
@@ -201,15 +201,13 @@ class AuthPage extends StatelessWidget {
   }
 
   Widget _buildFeatureItem(BuildContext context, IconData icon, String text) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         children: [
           Icon(
             icon,
-            color: colorScheme.primary,
+            color: const Color(0xFF2E7D32),
             size: 20,
           ),
           const SizedBox(width: 12),

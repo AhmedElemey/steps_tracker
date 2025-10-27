@@ -116,13 +116,11 @@ class _AddWeightDialogState extends State<AddWeightDialog> {
         ),
         Consumer<WeightController>(
           builder: (context, weightController, child) {
-            final colorScheme = Theme.of(context).colorScheme;
-            
             return ElevatedButton(
               onPressed: weightController.isLoading ? null : _submitForm,
               style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary,
-                foregroundColor: colorScheme.onPrimary,
+                backgroundColor: const Color(0xFF2E7D32),
+                foregroundColor: Colors.white,
               ),
               child: weightController.isLoading
                   ? const SizedBox(

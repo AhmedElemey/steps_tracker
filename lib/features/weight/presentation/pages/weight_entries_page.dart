@@ -21,7 +21,7 @@ class WeightEntriesPage extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: colorScheme.primary,
+        backgroundColor: const Color(0xFF2E7D32),
         elevation: 0,
         actions: [
           IconButton(
@@ -36,7 +36,7 @@ class WeightEntriesPage extends StatelessWidget {
           if (weightController.isLoading) {
             return Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2E7D32)),
               ),
             );
           }
@@ -73,8 +73,8 @@ class WeightEntriesPage extends StatelessWidget {
                       icon: const Icon(Icons.add),
                       label: const Text('Add Weight Entry'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
+                        backgroundColor: const Color(0xFF2E7D32),
+                        foregroundColor: Colors.white,
                       ),
                     ),
                   ],
@@ -117,12 +117,12 @@ class WeightEntriesPage extends StatelessWidget {
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: colorScheme.primary.withOpacity(0.1),
+            color: const Color(0xFF2E7D32).withOpacity(0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.monitor_weight,
-            color: colorScheme.primary,
+            color: Color(0xFF2E7D32),
           ),
         ),
         title: Text(

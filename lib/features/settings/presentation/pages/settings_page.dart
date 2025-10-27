@@ -47,7 +47,7 @@ class _SettingsPageState extends State<SettingsPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: colorScheme.primary,
+        backgroundColor: const Color(0xFF2E7D32),
         elevation: 0,
       ),
       body: Consumer<StepTrackingController>(
@@ -57,6 +57,113 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Account Section
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainer,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colorScheme.shadow.withOpacity(0.1),
+                        spreadRadius: 1,
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.account_circle,
+                            color: const Color(0xFF2E7D32),
+                            size: 24,
+                          ),
+                          const SizedBox(width: 12),
+                          const Text(
+                            'Account',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Consumer<AuthController>(
+                        builder: (context, authController, child) {
+                          return Column(
+                            children: [
+                              // Profile Image Section
+                              if (authController.userProfile != null) ...[
+                                Center(
+                                  child: ImagePickerWidget(
+                                    userProfile: authController.userProfile,
+                                    size: 100,
+                                    onImageUpdated: (updatedProfile) {
+                                      if (updatedProfile != null) {
+                                        // Update the auth controller with the new profile
+                                        authController.updateUserProfile(updatedProfile);
+                                      }
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                _buildInfoRow('Name', authController.userProfile!.name, context),
+                                _buildInfoRow('Weight', '${authController.userProfile!.weight.toStringAsFixed(1)} kg', context),
+                              ],
+                              const SizedBox(height: 16),
+                              // Action Buttons
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      onPressed: () async {
+                                        await FirebaseStorageTest.runStorageTest();
+                                        if (mounted) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Storage test completed. Check debug console for results.'),
+                                              duration: Duration(seconds: 3),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                      icon: const Icon(Icons.storage),
+                                      label: const Text('Test Storage'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue,
+                                        foregroundColor: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      onPressed: () => _showSignOutDialog(context),
+                                      icon: const Icon(Icons.logout),
+                                      label: const Text('Sign Out'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 24),
+                
                 // Daily Goal Section
                 Container(
                   padding: const EdgeInsets.all(20),
@@ -79,7 +186,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: [
                           Icon(
                             Icons.flag,
-                            color: colorScheme.primary,
+                            color: const Color(0xFF2E7D32),
                             size: 24,
                           ),
                           const SizedBox(width: 12),
@@ -139,8 +246,8 @@ class _SettingsPageState extends State<SettingsPage> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: colorScheme.primary,
-                              foregroundColor: colorScheme.onPrimary,
+                              backgroundColor: const Color(0xFF2E7D32),
+                              foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                             ),
                             child: const Text('Update'),
@@ -175,7 +282,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: [
                           Icon(
                             Icons.dark_mode,
-                            color: colorScheme.primary,
+                            color: const Color(0xFF2E7D32),
                             size: 24,
                           ),
                           const SizedBox(width: 12),
@@ -205,7 +312,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 onChanged: (value) {
                                   themeController.toggleTheme();
                                 },
-                                activeColor: colorScheme.primary,
+                                activeColor: const Color(0xFF2E7D32),
                               ),
                             ],
                           );
@@ -227,9 +334,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                 children: [
                                   Text(
                                     localizationService.locale.languageCode == 'en' ? 'English' : 'العربية',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontSize: 14,
-                                      color: colorScheme.primary,
+                                      color: Color(0xFF2E7D32),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -238,108 +345,9 @@ class _SettingsPageState extends State<SettingsPage> {
                                     onChanged: (value) {
                                       localizationService.toggleLanguage();
                                     },
-                                    activeColor: colorScheme.primary,
+                                    activeColor: const Color(0xFF2E7D32),
                                   ),
                                 ],
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                
-                const SizedBox(height: 24),
-                
-                // Account Section
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainer,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colorScheme.shadow.withOpacity(0.1),
-                        spreadRadius: 1,
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.account_circle,
-                            color: colorScheme.primary,
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Account',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Consumer<AuthController>(
-                        builder: (context, authController, child) {
-                          return Column(
-                            children: [
-                              // Profile Image Section
-                              if (authController.userProfile != null) ...[
-                                Center(
-                                  child: ImagePickerWidget(
-                                    userProfile: authController.userProfile,
-                                    size: 100,
-                                    onImageUpdated: (updatedProfile) {
-                                      if (updatedProfile != null) {
-                                        // Update the auth controller with the new profile
-                                        authController.updateUserProfile(updatedProfile);
-                                      }
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                _buildInfoRow('Name', authController.userProfile!.name, context),
-                                _buildInfoRow('Weight', '${authController.userProfile!.weight.toStringAsFixed(1)} kg', context),
-                              ],
-                              const SizedBox(height: 16),
-                              // Storage Test Button (temporary for debugging)
-                              ElevatedButton.icon(
-                                onPressed: () async {
-                                  await FirebaseStorageTest.runStorageTest();
-                                  if (mounted) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Storage test completed. Check debug console for results.'),
-                                        duration: Duration(seconds: 3),
-                                      ),
-                                    );
-                                  }
-                                },
-                                icon: const Icon(Icons.storage),
-                                label: const Text('Test Storage'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
-                                  foregroundColor: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              ElevatedButton.icon(
-                                onPressed: () => _showSignOutDialog(context),
-                                icon: const Icon(Icons.logout),
-                                label: const Text('Sign Out'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                ),
                               ),
                             ],
                           );
@@ -373,7 +381,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: [
                           Icon(
                             Icons.info_outline,
-                            color: colorScheme.primary,
+                            color: const Color(0xFF2E7D32),
                             size: 24,
                           ),
                           const SizedBox(width: 12),

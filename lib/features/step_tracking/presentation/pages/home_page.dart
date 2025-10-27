@@ -83,15 +83,16 @@ class _HomePageState extends State<HomePage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: colorScheme.primary,
+        backgroundColor: const Color(0xFF2E7D32),
         elevation: 0,
         actions: [
-          IconButton(
+        IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
               context.read<StepTrackingController>().refreshData();
             },
           ),
+          
         ],
       ),
       body: Consumer<StepTrackingController>(
@@ -150,9 +151,9 @@ class _HomePageState extends State<HomePage> {
                           target: controller.targetSteps,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 24),
                       Expanded(
-                        flex: 3,
+                        flex: 2,
                         child: StepCounterWidget(
                           currentSteps: controller.currentSteps,
                           targetSteps: controller.targetSteps,
@@ -176,7 +177,7 @@ class _HomePageState extends State<HomePage> {
                           color: Colors.orange,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: 24),
                       Expanded(
                         child: StatsCardWidget(
                           title: 'Progress',
@@ -193,7 +194,7 @@ class _HomePageState extends State<HomePage> {
                   // Step History
                   Text(
                     'Recent Activity',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
