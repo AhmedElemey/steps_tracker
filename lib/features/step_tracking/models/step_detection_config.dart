@@ -1,24 +1,18 @@
 class StepDetectionConfig {
-  // Peak detection thresholds
   final double peakThreshold;
   final double valleyThreshold;
   
-  // Time-based validation
   final int minStepIntervalMs; // Minimum time between steps (ms)
   final int maxStepIntervalMs; // Maximum time between steps (ms)
   
-  // Movement validation
   final double minMagnitudeThreshold; // Minimum acceleration magnitude for valid movement
   final double maxMagnitudeThreshold; // Maximum acceleration magnitude (filters out extreme movements)
   
-  // Walking pattern validation
   final int minConsecutiveSteps; // Minimum consecutive steps to consider as walking
   final int maxStepsWithoutWalking; // Reset count if no walking detected for this many steps
   
-  // Sensitivity adjustment
   final double sensitivity; // 0.0 to 1.0, affects threshold calculations
   
-  // Calibration
   final bool isCalibrated;
   final double userBaselineMagnitude; // User's baseline acceleration magnitude
 
@@ -64,7 +58,6 @@ class StepDetectionConfig {
     );
   }
 
-  // Calculate adjusted thresholds based on sensitivity
   double get adjustedPeakThreshold => peakThreshold + (sensitivity - 0.5) * 0.4;
   double get adjustedValleyThreshold => valleyThreshold + (sensitivity - 0.5) * 0.2;
   double get adjustedMinMagnitude => minMagnitudeThreshold + (sensitivity - 0.5) * 0.5;

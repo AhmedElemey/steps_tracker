@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-// import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/step_tracking/models/accelerometer_data.dart';
 
@@ -10,17 +9,14 @@ class BackgroundStepService {
   static const String _isTrackingKey = 'background_is_tracking';
 
   static Future<void> initialize() async {
-    // Background service temporarily disabled
     debugPrint('Background service initialization skipped');
   }
 
   static Future<void> startBackgroundTracking() async {
-    // Background service temporarily disabled
     debugPrint('Background step tracking skipped');
   }
 
   static Future<void> stopBackgroundTracking() async {
-    // Background service temporarily disabled
     debugPrint('Background step tracking stop skipped');
   }
 
@@ -92,17 +88,14 @@ bool _isValidStep(
 ) {
   if (lastPeakTime == null || lastValleyTime == null) return false;
   
-  // Check time interval between peak and valley
   final peakValleyInterval = lastValleyTime.difference(lastPeakTime).inMilliseconds;
   if (peakValleyInterval < 50 || peakValleyInterval > 600) return false;
   
-  // Check time since last step
   if (lastStepTime != null) {
     final stepInterval = lastValleyTime.difference(lastStepTime).inMilliseconds;
     if (stepInterval < 100 || stepInterval > 3000) return false;
   }
   
-  // Check magnitude difference
   final magnitudeDifference = lastPeakValue - lastValleyValue;
   if (magnitudeDifference < 0.3) return false;
   

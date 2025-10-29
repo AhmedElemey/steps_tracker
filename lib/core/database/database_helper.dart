@@ -28,7 +28,6 @@ class DatabaseHelper {
   }
 
   Future<void> _onCreate(Database db, int version) async {
-    // Create step_data table
     await db.execute('''
       CREATE TABLE step_data (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,7 +40,6 @@ class DatabaseHelper {
       )
     ''');
 
-    // Create goals table
     await db.execute('''
       CREATE TABLE goals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -55,7 +53,6 @@ class DatabaseHelper {
       )
     ''');
 
-    // Create daily_goals table
     await db.execute('''
       CREATE TABLE daily_goals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -68,17 +65,14 @@ class DatabaseHelper {
       )
     ''');
 
-    // Create index on date for faster queries
     await db.execute('''
       CREATE INDEX idx_step_data_date ON step_data(date)
     ''');
   }
 
-  // Step Data Methods
   Future<int> insertStepData(StepData stepData) async {
     final db = await database;
     final map = stepData.toMap();
-    // Remove id from map for new inserts to let SQLite auto-generate it
     map.remove('id');
     return await db.insert('step_data', map);
   }
@@ -148,7 +142,6 @@ class DatabaseHelper {
     );
   }
 
-  // Goals Methods
   Future<int> insertGoal(Goal goal) async {
     final db = await database;
     return await db.insert('goals', goal.toMap());
@@ -208,7 +201,6 @@ class DatabaseHelper {
     );
   }
 
-  // Daily Goals Methods
   Future<int> insertDailyGoal(DailyGoal dailyGoal) async {
     final db = await database;
     return await db.insert('daily_goals', dailyGoal.toMap());

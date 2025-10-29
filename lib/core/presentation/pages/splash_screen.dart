@@ -11,7 +11,6 @@ class SplashScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // App Icon/Logo
             Container(
               width: 120,
               height: 120,
@@ -34,7 +33,6 @@ class SplashScreen extends StatelessWidget {
             ),
             const SizedBox(height: 30),
             
-            // App Name
             const Text(
               'Steps Tracker',
               style: TextStyle(
@@ -46,7 +44,6 @@ class SplashScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             
-            // Tagline
             Text(
               'Track your fitness journey',
               style: TextStyle(
@@ -57,7 +54,6 @@ class SplashScreen extends StatelessWidget {
             ),
             const SizedBox(height: 50),
             
-            // Loading indicator
             const CircularProgressIndicator(
               valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               strokeWidth: 3,

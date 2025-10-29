@@ -11,7 +11,6 @@ class GoalsController extends ChangeNotifier {
   bool _isLoading = false;
   String _errorMessage = '';
 
-  // Getters
   List<Goal> get goals => _goals;
   List<Goal> get activeGoals => _activeGoals;
   List<Goal> get completedGoals => _completedGoals;
@@ -120,7 +119,6 @@ class GoalsController extends ChangeNotifier {
           _goals[index] = updatedGoal;
         }
 
-        // Update active and completed lists
         _activeGoals = _goals.where((goal) => goal.status == GoalStatus.active).toList();
         _completedGoals = _goals.where((goal) => goal.status == GoalStatus.completed).toList();
 
@@ -161,7 +159,6 @@ class GoalsController extends ChangeNotifier {
           _goals[index] = updatedGoal;
         }
 
-        // Update active and completed lists
         _activeGoals = _goals.where((goal) => goal.status == GoalStatus.active).toList();
         _completedGoals = _goals.where((goal) => goal.status == GoalStatus.completed).toList();
 

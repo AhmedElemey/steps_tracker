@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'lib/features/profile/services/profile_service.dart';
 
-/// Simple test to verify the image upload fallback system
 void main() {
   runApp(MyApp());
 }
@@ -138,8 +137,6 @@ class _ImageUploadTestState extends State<ImageUploadTest> {
     });
 
     try {
-      // Create a dummy file for testing
-      // In a real test, you would pick an actual image
       _status = 'Note: This is a simulation test.\n'
                 'In the real app, you would pick an image from gallery.\n\n'
                 'The fallback system is now properly implemented:\n\n'

@@ -5,88 +5,61 @@ import 'package:sensors_plus/sensors_plus.dart';
 import '../models/accelerometer_data.dart';
 import '../models/step_detection_config.dart';
 
-/// Battery Optimization Service for Step Detection
-/// 
-/// This service implements comprehensive battery optimization strategies including:
-/// 1. Adaptive sampling rate based on activity level
-/// 2. Batch processing to reduce CPU wake-ups
-/// 3. Intelligent sleep/wake cycles
-/// 4. Power-aware algorithm selection
-/// 5. Background processing optimization
-/// 6. Memory management for long-running sessions
-/// 
-/// Based on research showing that battery optimization is crucial for
-/// continuous step tracking without significantly impacting user experience.
 class BatteryOptimizationService {
   static final BatteryOptimizationService _instance = BatteryOptimizationService._internal();
   factory BatteryOptimizationService() => _instance;
   BatteryOptimizationService._internal();
 
-  // Battery optimization state
   BatteryMode _currentMode = BatteryMode.normal;
   int _currentSamplingRate = 100; // Hz
   int _batchSize = 10; // Process data in batches
   Duration _processingInterval = const Duration(milliseconds: 100);
   
-  // Activity detection
   double _activityLevel = 0.0;
   final List<double> _activityHistory = [];
   final int _activityHistorySize = 20;
   DateTime? _lastActivityTime;
   
-  // Power management
   Timer? _batchProcessingTimer;
   Timer? _activityMonitoringTimer;
   Timer? _powerModeTimer;
   
-  // Data batching
   final List<AccelerometerData> _dataBatch = [];
   final StreamController<List<AccelerometerData>> _batchController = StreamController<List<AccelerometerData>>.broadcast();
   
-  // Stream subscriptions
   StreamSubscription<AccelerometerEvent>? _accelerometerSubscription;
   
-  // Configuration
   StepDetectionConfig _config = const StepDetectionConfig();
   
-  // Power consumption estimates (relative units)
   static const int _highPowerConsumption = 100;
   static const int _mediumPowerConsumption = 50;
   static const int _lowPowerConsumption = 20;
   static const int _sleepPowerConsumption = 5;
 
-  // Getters
   BatteryMode get currentMode => _currentMode;
   int get currentSamplingRate => _currentSamplingRate;
   double get activityLevel => _activityLevel;
   int get estimatedPowerConsumption => _getEstimatedPowerConsumption();
 
-  // Streams
   Stream<List<AccelerometerData>> get batchStream => _batchController.stream;
   Stream<BatteryMode> get batteryModeStream => _batteryModeController.stream;
   
   final StreamController<BatteryMode> _batteryModeController = StreamController<BatteryMode>.broadcast();
 
-  /// Start battery-optimized data collection
   Future<void> startOptimizedCollection() async {
     debugPrint('Starting battery-optimized data collection...');
     
-    // Initialize with normal mode
     _setBatteryMode(BatteryMode.normal);
     
-    // Start activity monitoring
     _startActivityMonitoring();
     
-    // Start batch processing
     _startBatchProcessing();
     
-    // Start power mode optimization
     _startPowerModeOptimization();
     
     debugPrint('Battery optimization started - Mode: $_currentMode, Sampling: ${_currentSamplingRate}Hz');
   }
 
-  /// Stop battery-optimized data collection
   Future<void> stopOptimizedCollection() async {
     await _accelerometerSubscription?.cancel();
     _batchProcessingTimer?.cancel();
@@ -99,14 +72,12 @@ class BatteryOptimizationService {
     debugPrint('Battery optimization stopped');
   }
 
-  /// Update configuration
   void updateConfig(StepDetectionConfig newConfig) {
     _config = newConfig;
     _adjustSamplingRate();
     debugPrint('Battery optimization config updated');
   }
 
-  /// Start activity monitoring
   void _startActivityMonitoring() {
     _activityMonitoringTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       _updateActivityLevel();
@@ -114,54 +85,45 @@ class BatteryOptimizationService {
     });
   }
 
-  /// Start batch processing
   void _startBatchProcessing() {
     _batchProcessingTimer = Timer.periodic(_processingInterval, (timer) {
       _processBatch();
     });
   }
 
-  /// Start power mode optimization
   void _startPowerModeOptimization() {
     _powerModeTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       _optimizePowerMode();
     });
   }
 
-  /// Update activity level based on recent data
   void _updateActivityLevel() {
     if (_dataBatch.isEmpty) {
       _activityLevel = 0.0;
       return;
     }
     
-    // Calculate activity level from recent data
     final recentData = _dataBatch.length > 10 
         ? _dataBatch.sublist(_dataBatch.length - 10)
         : _dataBatch;
     
-    // Calculate variance as activity indicator
     final magnitudes = recentData.map((d) => d.magnitude).toList();
     final mean = magnitudes.reduce((a, b) => a + b) / magnitudes.length;
     final variance = magnitudes.map((x) => pow(x - mean, 2)).reduce((a, b) => a + b) / magnitudes.length;
     final stdDev = sqrt(variance);
     
-    // Normalize activity level (0-1)
     _activityLevel = min(1.0, stdDev / 2.0);
     
-    // Store in history
     _activityHistory.add(_activityLevel);
     if (_activityHistory.length > _activityHistorySize) {
       _activityHistory.removeAt(0);
     }
     
-    // Update last activity time
     if (_activityLevel > 0.1) {
       _lastActivityTime = DateTime.now();
     }
   }
 
-  /// Adjust battery mode based on activity level
   void _adjustBatteryMode() {
     final timeSinceActivity = _lastActivityTime != null 
         ? DateTime.now().difference(_lastActivityTime!)
@@ -170,19 +132,14 @@ class BatteryOptimizationService {
     BatteryMode newMode;
     
     if (timeSinceActivity.inMinutes > 10) {
-      // No activity for 10+ minutes - sleep mode
       newMode = BatteryMode.sleep;
     } else if (_activityLevel > 0.7) {
-      // High activity - high performance mode
       newMode = BatteryMode.highPerformance;
     } else if (_activityLevel > 0.3) {
-      // Medium activity - normal mode
       newMode = BatteryMode.normal;
     } else if (_activityLevel > 0.1) {
-      // Low activity - power saving mode
       newMode = BatteryMode.powerSaving;
     } else {
-      // Very low activity - sleep mode
       newMode = BatteryMode.sleep;
     }
     
@@ -191,7 +148,6 @@ class BatteryOptimizationService {
     }
   }
 
-  /// Set battery mode and adjust parameters
   void _setBatteryMode(BatteryMode mode) {
     _currentMode = mode;
     
@@ -227,16 +183,12 @@ class BatteryOptimizationService {
     debugPrint('Battery mode changed to: $mode (Sampling: ${_currentSamplingRate}Hz, Batch: $_batchSize)');
   }
 
-  /// Adjust sampling rate based on current mode
   void _adjustSamplingRate() {
-    // Cancel existing subscription
     _accelerometerSubscription?.cancel();
     
-    // Start new subscription with adjusted rate
     _startAccelerometerSubscription();
   }
 
-  /// Start accelerometer subscription with current sampling rate
   void _startAccelerometerSubscription() {
     _accelerometerSubscription = accelerometerEventStream().listen(
       _onAccelerometerData,
@@ -244,7 +196,6 @@ class BatteryOptimizationService {
     );
   }
 
-  /// Handle accelerometer data
   void _onAccelerometerData(AccelerometerEvent event) {
     final accelerometerData = AccelerometerData(
       x: event.x,
@@ -253,34 +204,25 @@ class BatteryOptimizationService {
       timestamp: DateTime.now(),
     );
     
-    // Add to batch
     _dataBatch.add(accelerometerData);
     
-    // Process batch if it's full
     if (_dataBatch.length >= _batchSize) {
       _processBatch();
     }
   }
 
-  /// Process data batch
   void _processBatch() {
     if (_dataBatch.isEmpty) return;
     
-    // Emit batch for processing
     _batchController.add(List.from(_dataBatch));
     
-    // Clear batch
     _dataBatch.clear();
   }
 
-  /// Optimize power mode based on usage patterns
   void _optimizePowerMode() {
     if (_activityHistory.length < 10) return;
     
-    // Calculate average activity over time (unused but kept for future analysis)
-    // final avgActivity = _activityHistory.reduce((a, b) => a + b) / _activityHistory.length;
     
-    // Calculate activity trend
     final recentActivity = _activityHistory.length > 5 
         ? _activityHistory.sublist(_activityHistory.length - 5)
         : _activityHistory;
@@ -293,18 +235,14 @@ class BatteryOptimizationService {
       final olderAvg = olderActivity.reduce((a, b) => a + b) / olderActivity.length;
       final trend = recentAvg - olderAvg;
       
-      // Adjust mode based on trend
       if (trend > 0.2 && _currentMode == BatteryMode.powerSaving) {
-        // Activity increasing - move to normal mode
         _setBatteryMode(BatteryMode.normal);
       } else if (trend < -0.2 && _currentMode == BatteryMode.normal) {
-        // Activity decreasing - move to power saving mode
         _setBatteryMode(BatteryMode.powerSaving);
       }
     }
   }
 
-  /// Get estimated power consumption
   int _getEstimatedPowerConsumption() {
     switch (_currentMode) {
       case BatteryMode.highPerformance:
@@ -318,17 +256,14 @@ class BatteryOptimizationService {
     }
   }
 
-  /// Handle accelerometer errors
   void _onAccelerometerError(dynamic error) {
     debugPrint('Battery optimization accelerometer error: $error');
     
-    // Try to recover by restarting subscription
     Future.delayed(const Duration(seconds: 1), () {
       _startAccelerometerSubscription();
     });
   }
 
-  /// Get battery optimization status
   BatteryOptimizationStatus getStatus() {
     return BatteryOptimizationStatus(
       mode: _currentMode,
@@ -343,12 +278,10 @@ class BatteryOptimizationService {
     );
   }
 
-  /// Force battery mode (for testing or user preference)
   void setBatteryMode(BatteryMode mode) {
     _setBatteryMode(mode);
   }
 
-  /// Get recommended battery mode for current conditions
   BatteryMode getRecommendedMode() {
     if (_activityLevel > 0.7) return BatteryMode.highPerformance;
     if (_activityLevel > 0.3) return BatteryMode.normal;
@@ -356,7 +289,6 @@ class BatteryOptimizationService {
     return BatteryMode.sleep;
   }
 
-  /// Dispose resources
   void dispose() {
     stopOptimizedCollection();
     _batchController.close();
@@ -364,7 +296,6 @@ class BatteryOptimizationService {
   }
 }
 
-/// Battery optimization modes
 enum BatteryMode {
   highPerformance,  // Maximum accuracy, high power consumption
   normal,           // Balanced accuracy and power consumption
@@ -372,7 +303,6 @@ enum BatteryMode {
   sleep,            // Minimal processing, very low power consumption
 }
 
-/// Battery optimization status
 class BatteryOptimizationStatus {
   final BatteryMode mode;
   final int samplingRate;

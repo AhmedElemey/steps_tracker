@@ -9,7 +9,6 @@ class StepsController extends ChangeNotifier {
   bool _isLoading = false;
   String _errorMessage = '';
 
-  // Getters
   List<StepsEntry> get stepsEntries => _stepsEntries;
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;

@@ -153,10 +153,8 @@ class _AddStepsDialogState extends State<AddStepsDialog> {
     }
 
     if (mounted) {
-      // Close dialog
       Navigator.of(context).pop();
       
-      // Show success/error message
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

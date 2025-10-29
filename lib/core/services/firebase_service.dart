@@ -16,12 +16,10 @@ class FirebaseService {
   bool get isSignedIn => currentUser != null;
 
   Future<void> initialize() async {
-    // Firebase is already initialized in main.dart with proper options
     _configureFirestore();
   }
 
   void _configureFirestore() {
-    // Enable offline persistence
     firestore.settings = const Settings(
       persistenceEnabled: true,
       cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
@@ -41,7 +39,6 @@ class FirebaseService {
 
   Future<UserCredential?> signInAnonymously() async {
     try {
-      // Check connectivity before attempting sign in
       if (!await isConnected) {
         debugPrint('No internet connection available');
         return null;

@@ -9,7 +9,6 @@ class WeightController extends ChangeNotifier {
   bool _isLoading = false;
   String _errorMessage = '';
 
-  // Getters
   List<WeightEntry> get weightEntries => _weightEntries;
   bool get isLoading => _isLoading;
   String get errorMessage => _errorMessage;
@@ -71,7 +70,6 @@ class WeightController extends ChangeNotifier {
       final entry = await _weightService.addWeightEntry(weight);
       if (entry != null) {
         debugPrint('Successfully added weight entry: ${entry.id}');
-        // Add to the local list immediately for instant UI feedback
         _weightEntries.insert(0, entry); // Add to the beginning since we want newest first
         notifyListeners();
         return true;
@@ -98,7 +96,6 @@ class WeightController extends ChangeNotifier {
       final entry = await _weightService.updateWeightEntry(id, weight);
       if (entry != null) {
         debugPrint('Successfully updated weight entry');
-        // Update the local list immediately
         final index = _weightEntries.indexWhere((e) => e.id == id);
         if (index != -1) {
           _weightEntries[index] = entry;
@@ -128,7 +125,6 @@ class WeightController extends ChangeNotifier {
       final success = await _weightService.deleteWeightEntry(id);
       if (success) {
         debugPrint('Successfully deleted weight entry');
-        // The stream will automatically update the UI, but we can also remove from local list immediately
         _weightEntries.removeWhere((entry) => entry.id == id);
         notifyListeners();
       } else {

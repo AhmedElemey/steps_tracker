@@ -128,10 +128,8 @@ class LocationPermissionDialog extends StatelessWidget {
 
   Future<void> _requestLocationPermission() async {
     try {
-      // Request location permission
       final locationStatus = await Permission.location.request();
       
-      // Also request activity recognition permission
       final activityStatus = await Permission.activityRecognition.request();
       
       if (locationStatus.isGranted && activityStatus.isGranted) {
@@ -140,7 +138,6 @@ class LocationPermissionDialog extends StatelessWidget {
         onPermissionDenied?.call();
       }
     } catch (e) {
-      // Handle any errors gracefully
       onPermissionDenied?.call();
     }
   }

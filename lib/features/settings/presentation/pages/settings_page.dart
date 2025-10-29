@@ -57,7 +57,6 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Account Section
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -97,7 +96,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         builder: (context, authController, child) {
                           return Column(
                             children: [
-                              // Profile Image Section
                               if (authController.userProfile != null) ...[
                                 Center(
                                   child: ImagePickerWidget(
@@ -105,7 +103,6 @@ class _SettingsPageState extends State<SettingsPage> {
                                     size: 100,
                                     onImageUpdated: (updatedProfile) {
                                       if (updatedProfile != null) {
-                                        // Update the auth controller with the new profile
                                         authController.updateUserProfile(updatedProfile);
                                       }
                                     },
@@ -116,7 +113,6 @@ class _SettingsPageState extends State<SettingsPage> {
                                 _buildInfoRow('Weight', '${authController.userProfile!.weight.toStringAsFixed(1)} kg', context),
                               ],
                               const SizedBox(height: 16),
-                              // Action Buttons
                               Row(
                                 children: [
                                   Expanded(
@@ -164,7 +160,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 
                 const SizedBox(height: 24),
                 
-                // Daily Goal Section
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -260,7 +255,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 
                 const SizedBox(height: 24),
                 
-                // Theme Section
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -359,7 +353,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 
                 const SizedBox(height: 24),
                 
-                // App Info Section
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -402,72 +395,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                 ),
                 
-                // const SizedBox(height: 24),
                 
-                // // Permissions Section
-                // Container(
-                //   padding: const EdgeInsets.all(20),
-                //   decoration: BoxDecoration(
-                //     color: Colors.white,
-                //     borderRadius: BorderRadius.circular(16),
-                //     boxShadow: [
-                //       BoxShadow(
-                //         color: Colors.grey.withOpacity(0.1),
-                //         spreadRadius: 1,
-                //         blurRadius: 10,
-                //         offset: const Offset(0, 2),
-                //       ),
-                //     ],
-                //   ),
-                //   child: Column(
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     children: [
-                //       Row(
-                //         children: [
-                //           Icon(
-                //             Icons.security,
-                //             color: const Color(0xFF2E7D32),
-                //             size: 24,
-                //           ),
-                //           const SizedBox(width: 12),
-                //           const Text(
-                //             'Permissions',
-                //             style: TextStyle(
-                //               fontSize: 18,
-                //               fontWeight: FontWeight.bold,
-                //             ),
-                //           ),
-                //         ],
-                //       ),
-                //       const SizedBox(height: 16),
-                //       Text(
-                //         'This app requires activity recognition permission to track your steps accurately.',
-                //         style: TextStyle(
-                //           color: Colors.grey.shade600,
-                //           fontSize: 14,
-                //         ),
-                //       ),
-                //       const SizedBox(height: 12),
-                //       ElevatedButton.icon(
-                //         onPressed: () async {
-                //           // This would open app settings in a real implementation
-                //           ScaffoldMessenger.of(context).showSnackBar(
-                //             const SnackBar(
-                //               content: Text('Please enable activity recognition in your device settings'),
-                //               backgroundColor: Colors.orange,
-                //             ),
-                //           );
-                //         },
-                //         icon: const Icon(Icons.settings),
-                //         label: const Text('Open Settings'),
-                //         style: ElevatedButton.styleFrom(
-                //           backgroundColor: Colors.orange,
-                //           foregroundColor: Colors.white,
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
               ],
             ),
           );

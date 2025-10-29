@@ -37,7 +37,6 @@ class ProgressRingWidget extends StatelessWidget {
             height: 120,
             child: Stack(
               children: [
-                // Background circle
                 Container(
                   width: 120,
                   height: 120,
@@ -46,7 +45,6 @@ class ProgressRingWidget extends StatelessWidget {
                     color: colorScheme.surface,
                   ),
                 ),
-                // Progress circle
                 SizedBox(
                   width: 120,
                   height: 120,
@@ -59,7 +57,6 @@ class ProgressRingWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Center content
                 Positioned(
                   left: 0,
                   right: 0,

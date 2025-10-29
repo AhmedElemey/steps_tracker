@@ -36,7 +36,6 @@ class StepTrackingService {
   bool _useAdvancedDetection = true;
   WalkingStateData? _currentWalkingState;
   
-  // Getters
   int get currentSteps => _currentSteps;
   int get sessionSteps => _sessionSteps; // Steps taken in current session
   DateTime? get lastUpdateTime => _lastUpdateTime;
@@ -44,19 +43,16 @@ class StepTrackingService {
   WalkingStateData? get currentWalkingState => _currentWalkingState;
   Future<bool> get isCalibrated async => await _calibrationService.loadConfiguration() != null;
 
-  /// Reset session steps (useful for starting a new walking session)
   void resetSessionSteps() {
     _sessionSteps = 0;
     _initialStepCount = _currentSteps; // Reset baseline to current total
     debugPrint('Session steps reset. New baseline: $_initialStepCount');
   }
 
-  /// Test pedometer package directly
   Future<void> testPedometerPackage() async {
     debugPrint('Testing pedometer package directly...');
     
     try {
-      // Test step count stream
       final stepCountStream = await Pedometer.stepCountStream;
       stepCountStream.listen((StepCount event) {
         debugPrint('Pedometer step count: ${event.steps} at ${event.timeStamp}');
@@ -65,7 +61,6 @@ class StepTrackingService {
         debugPrint('Pedometer step count error: $error');
       });
       
-      // Test pedestrian status stream
       final pedestrianStatusStream = await Pedometer.pedestrianStatusStream;
       pedestrianStatusStream.listen((PedestrianStatus event) {
         debugPrint('Pedometer status: ${event.status} at ${event.timeStamp}');
@@ -79,38 +74,30 @@ class StepTrackingService {
     }
   }
 
-  /// Force reset and recalibrate the step detection
   Future<void> forceRecalibrate() async {
     debugPrint('Force recalibrating step detection...');
     
-    // Stop current tracking
     await stopTracking();
     
-    // Reset advanced detection
     _advancedDetection.resetCounters();
     _advancedDetection.resetSteps();
     
-    // Force recalibration
     await _advancedDetection.recalibrate();
     
-    // Restart tracking
     await startTracking();
   }
 
-  /// Recalibrate the step detection
   Future<void> recalibrate() async {
     debugPrint('Recalibrating step detection...');
     await _advancedDetection.recalibrate();
   }
 
-  /// Reset step counters
   void resetStepCounters() {
     _advancedDetection.resetCounters();
     _currentSteps = 0;
     _lastUpdateTime = null;
   }
 
-  // Stream controllers for UI updates
   final StreamController<int> _stepsController = StreamController<int>.broadcast();
   final StreamController<PedestrianStatus> _statusController = StreamController<PedestrianStatus>.broadcast();
   final StreamController<WalkingStateData> _walkingStateController = StreamController<WalkingStateData>.broadcast();
@@ -120,7 +107,6 @@ class StepTrackingService {
   Stream<WalkingStateData> get walkingStateStream => _walkingStateController.stream;
 
   Future<bool> requestPermissions() async {
-    // Request activity recognition permission
     final status = await Permission.activityRecognition.request();
     return status.isGranted;
   }
@@ -133,18 +119,15 @@ class StepTrackingService {
   Future<void> startTracking() async {
     try {
       
-      // Check permissions first
       if (!await isPermissionGranted()) {
         final granted = await requestPermissions();
         if (!granted) {
-          // For demo purposes, start with mock data if permission not granted
           debugPrint('Permission not granted, using mock data for demo');
           _startMockTracking();
           return;
         }
       }
 
-      // Load saved configuration
       final savedConfig = await _calibrationService.loadConfiguration();
       if (savedConfig != null) {
         _advancedDetection.updateConfig(savedConfig);
@@ -152,11 +135,9 @@ class StepTrackingService {
 
       if (_useAdvancedDetection) {
         try {
-          // Use advanced step detection first
           await _startAdvancedTracking();
           debugPrint('Advanced step detection started - only counting actual walking steps');
           
-          // Set up a timer to check if advanced detection is working
           Timer(const Duration(seconds: 10), () async {
             if (_currentSteps == 0) {
               debugPrint('Advanced detection not detecting steps, falling back to traditional pedometer');
@@ -168,17 +149,14 @@ class StepTrackingService {
           await _fallbackToTraditionalTracking();
         }
       } else {
-        // Use traditional pedometer
         await _startTraditionalTracking();
         debugPrint('Traditional pedometer started');
       }
 
 
-      // Load today's step data
       await _loadTodayStepData();
     } catch (e) {
       debugPrint('Error starting step tracking: $e');
-      // Only start mock tracking if advanced detection is not enabled
       if (!_useAdvancedDetection) {
         _startMockTracking();
       } else {
@@ -190,10 +168,8 @@ class StepTrackingService {
   Future<void> _startAdvancedTracking() async {
     debugPrint('Starting advanced tracking...');
     
-    // Start advanced detection
     await _advancedDetection.startDetection();
 
-    // Listen to advanced step detection streams
     _advancedStepsSubscription = _advancedDetection.stepsStream.listen(
       _onAdvancedStepsUpdate,
       onError: _onError,
@@ -209,11 +185,9 @@ class StepTrackingService {
 
   Future<void> _startTraditionalTracking() async {
     try {
-      // Initialize streams properly as per pedometer package documentation
       _stepCountStream = await Pedometer.stepCountStream;
       _pedestrianStatusStream = await Pedometer.pedestrianStatusStream;
 
-      // Get initial step count to calculate session steps
       _stepCountStream!.take(1).listen((StepCount event) {
         _initialStepCount = event.steps;
         _currentSteps = event.steps;
@@ -222,13 +196,11 @@ class StepTrackingService {
         _stepsController.add(_currentSteps);
       });
 
-      // Listen to step count stream
       _stepCountSubscription = _stepCountStream!.listen(
         _onStepCount,
         onError: _onStepCountError,
       );
 
-      // Listen to pedestrian status stream
       _pedestrianStatusSubscription = _pedestrianStatusStream!.listen(
         _onPedestrianStatus,
         onError: _onPedestrianStatusError,
@@ -244,22 +216,18 @@ class StepTrackingService {
   Future<void> _fallbackToTraditionalTracking() async {
     debugPrint('Falling back to traditional pedometer tracking');
     
-    // Stop advanced detection
     await _advancedStepsSubscription?.cancel();
     await _walkingStateSubscription?.cancel();
     await _advancedDetection.stopDetection();
     
-    // Switch to traditional tracking
     _useAdvancedDetection = false;
     await _startTraditionalTracking();
   }
 
   void _startMockTracking() {
-    // For demo purposes, start with some initial steps but don't auto-increment
     _currentSteps = 0; // Start with 0 steps
     _stepsController.add(_currentSteps);
     
-    // Don't simulate automatic step increments - only count actual steps
     debugPrint('Mock tracking started - steps will only be counted when actually walking');
   }
 
@@ -269,13 +237,10 @@ class StepTrackingService {
     _sessionSteps = steps; // Advanced detection already tracks session steps
     _lastUpdateTime = DateTime.now();
     
-    // Emit to stream
     _stepsController.add(_currentSteps);
     
-    // Save to local database
     _saveStepData();
     
-    // Save to Firestore if user is signed in
     if (_firebaseService.isSignedIn) {
       _stepsService.addStepsEntry(_currentSteps);
     }
@@ -294,13 +259,10 @@ class StepTrackingService {
     debugPrint('Pedometer step count: $_currentSteps (total since boot)');
     debugPrint('Session steps: $_sessionSteps (steps taken in this session)');
     
-    // Emit session steps to stream (more useful for user)
     _stepsController.add(_sessionSteps);
     
-    // Save to local database
     _saveStepData();
     
-    // Save to Firestore if user is signed in
     if (_firebaseService.isSignedIn) {
       _stepsService.addStepsEntry(_sessionSteps);
     }
@@ -333,14 +295,11 @@ class StepTrackingService {
     final today = DateTime.now();
     final existingData = await _databaseHelper.getStepDataByDate(today);
     
-    // Use session steps for calculations (more meaningful for user)
     final stepsToSave = _sessionSteps > 0 ? _sessionSteps : _currentSteps;
     
-    // Calculate distance (assuming average step length of 0.7 meters)
     const double averageStepLength = 0.7;
     final distance = stepsToSave * averageStepLength;
     
-    // Calculate calories (rough estimate: 0.04 calories per step)
     const double caloriesPerStep = 0.04;
     final calories = (stepsToSave * caloriesPerStep).round();
 
@@ -392,7 +351,6 @@ class StepTrackingService {
     return await _databaseHelper.getAllStepData();
   }
 
-  // Advanced detection methods
   Future<void> startCalibration() async {
     await _calibrationService.startCalibration();
   }
@@ -406,7 +364,6 @@ class StepTrackingService {
 
   void toggleDetectionMode() {
     _useAdvancedDetection = !_useAdvancedDetection;
-    // Restart tracking with new mode
     stopTracking().then((_) => startTracking());
   }
 
@@ -433,7 +390,6 @@ class StepTrackingService {
     return await _calibrationService.loadUserProfile();
   }
 
-  // Background tracking methods
   Future<void> syncBackgroundSteps() async {
     try {
       final backgroundSteps = 0;

@@ -12,26 +12,21 @@ class StepCalibrationService {
   static const String _configKey = 'step_detection_config';
   static const String _userProfileKey = 'user_step_profile';
 
-  // Calibration data
   final List<AccelerometerData> _calibrationSamples = [];
   final List<double> _walkingMagnitudes = [];
   final List<double> _idleMagnitudes = [];
   
-  // Calibration state
   bool _isCalibrating = false;
   DateTime? _calibrationStartTime;
   Timer? _calibrationTimer;
 
-  // Stream controllers
   final StreamController<CalibrationProgress> _progressController = StreamController<CalibrationProgress>.broadcast();
   final StreamController<CalibrationResult> _resultController = StreamController<CalibrationResult>.broadcast();
 
-  // Getters
   bool get isCalibrating => _isCalibrating;
   Stream<CalibrationProgress> get progressStream => _progressController.stream;
   Stream<CalibrationResult> get resultStream => _resultController.stream;
 
-  /// Start calibration process
   Future<void> startCalibration() async {
     if (_isCalibrating) return;
 
@@ -41,20 +36,16 @@ class StepCalibrationService {
     _idleMagnitudes.clear();
     _calibrationStartTime = DateTime.now();
 
-    // Emit initial progress
     _progressController.add(CalibrationProgress(
       phase: CalibrationPhase.preparing,
       progress: 0.0,
       message: 'Preparing calibration...',
     ));
 
-    // Start calibration phases
     _startCalibrationPhases();
   }
 
-  /// Start the calibration phases
   void _startCalibrationPhases() {
-    // Phase 1: Idle detection (5 seconds)
     _progressController.add(CalibrationProgress(
       phase: CalibrationPhase.idle,
       progress: 0.1,
@@ -64,7 +55,6 @@ class StepCalibrationService {
     Timer(const Duration(seconds: 5), () {
       if (!_isCalibrating) return;
 
-      // Phase 2: Walking detection (15 seconds)
       _progressController.add(CalibrationProgress(
         phase: CalibrationPhase.walking,
         progress: 0.3,
@@ -74,7 +64,6 @@ class StepCalibrationService {
       Timer(const Duration(seconds: 15), () {
         if (!_isCalibrating) return;
 
-        // Phase 3: Analysis
         _progressController.add(CalibrationProgress(
           phase: CalibrationPhase.analyzing,
           progress: 0.8,
@@ -89,25 +78,20 @@ class StepCalibrationService {
     });
   }
 
-  /// Add accelerometer data during calibration
   void addCalibrationData(AccelerometerData data) {
     if (!_isCalibrating) return;
 
     _calibrationSamples.add(data);
 
-    // Categorize data based on calibration phase
     final elapsed = DateTime.now().difference(_calibrationStartTime!);
     
     if (elapsed.inSeconds < 5) {
-      // Idle phase
       _idleMagnitudes.add(data.magnitude);
     } else if (elapsed.inSeconds < 20) {
-      // Walking phase
       _walkingMagnitudes.add(data.magnitude);
     }
   }
 
-  /// Complete calibration and calculate user profile
   Future<void> _completeCalibration() async {
     try {
       if (_calibrationSamples.isEmpty) {
@@ -115,13 +99,10 @@ class StepCalibrationService {
         return;
       }
 
-      // Calculate user profile
       final userProfile = _calculateUserProfile();
       
-      // Create optimized config
       final optimizedConfig = _createOptimizedConfig(userProfile);
       
-      // Save configuration
       await _saveConfiguration(optimizedConfig);
       await _saveUserProfile(userProfile);
 
@@ -134,17 +115,13 @@ class StepCalibrationService {
     }
   }
 
-  /// Calculate user-specific profile
   UserStepProfile _calculateUserProfile() {
-    // Calculate baseline magnitudes
     final idleBaseline = _calculateBaseline(_idleMagnitudes);
     final walkingBaseline = _calculateBaseline(_walkingMagnitudes);
     
-    // Calculate walking characteristics
     final walkingVariability = _calculateVariability(_walkingMagnitudes);
     final stepAmplitude = walkingBaseline - idleBaseline;
     
-    // Determine user's walking style
     final walkingStyle = _determineWalkingStyle(stepAmplitude, walkingVariability);
     
     return UserStepProfile(
@@ -157,7 +134,6 @@ class StepCalibrationService {
     );
   }
 
-  /// Calculate baseline (median) from magnitude data
   double _calculateBaseline(List<double> magnitudes) {
     if (magnitudes.isEmpty) return 9.81; // Default gravity
     
@@ -166,7 +142,6 @@ class StepCalibrationService {
     return magnitudes[medianIndex];
   }
 
-  /// Calculate variability (standard deviation) from magnitude data
   double _calculateVariability(List<double> magnitudes) {
     if (magnitudes.length < 2) return 0.0;
     
@@ -175,7 +150,6 @@ class StepCalibrationService {
     return sqrt(variance);
   }
 
-  /// Determine user's walking style
   WalkingStyle _determineWalkingStyle(double stepAmplitude, double variability) {
     if (stepAmplitude < 0.5) {
       return WalkingStyle.light;
@@ -188,9 +162,7 @@ class StepCalibrationService {
     }
   }
 
-  /// Create optimized configuration based on user profile
   StepDetectionConfig _createOptimizedConfig(UserStepProfile profile) {
-    // Adjust thresholds based on user's walking characteristics
     double peakThreshold = 1.2;
     double valleyThreshold = 0.8;
     double minMagnitude = 9.5;
@@ -233,19 +205,16 @@ class StepCalibrationService {
     );
   }
 
-  /// Save configuration to shared preferences
   Future<void> _saveConfiguration(StepDetectionConfig config) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_configKey, _configToJson(config));
   }
 
-  /// Save user profile to shared preferences
   Future<void> _saveUserProfile(UserStepProfile profile) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_userProfileKey, _profileToJson(profile));
   }
 
-  /// Load saved configuration
   Future<StepDetectionConfig?> loadConfiguration() async {
     final prefs = await SharedPreferences.getInstance();
     final configJson = prefs.getString(_configKey);
@@ -257,7 +226,6 @@ class StepCalibrationService {
     return null;
   }
 
-  /// Load saved user profile
   Future<UserStepProfile?> loadUserProfile() async {
     final prefs = await SharedPreferences.getInstance();
     final profileJson = prefs.getString(_userProfileKey);
@@ -269,7 +237,6 @@ class StepCalibrationService {
     return null;
   }
 
-  /// Emit calibration result
   void _emitCalibrationResult(bool success, String message) {
     final result = CalibrationResult(
       success: success,
@@ -280,19 +247,16 @@ class StepCalibrationService {
     _resultController.add(result);
   }
 
-  /// Cancel calibration
   void cancelCalibration() {
     _isCalibrating = false;
     _calibrationTimer?.cancel();
     _emitCalibrationResult(false, 'Calibration cancelled');
   }
 
-  /// Convert config to JSON string
   String _configToJson(StepDetectionConfig config) {
     return '${config.peakThreshold}|${config.valleyThreshold}|${config.minMagnitudeThreshold}|${config.maxMagnitudeThreshold}|${config.isCalibrated}|${config.userBaselineMagnitude}';
   }
 
-  /// Convert JSON string to config
   StepDetectionConfig _configFromJson(String json) {
     final parts = json.split('|');
     return StepDetectionConfig(
@@ -305,12 +269,10 @@ class StepCalibrationService {
     );
   }
 
-  /// Convert profile to JSON string
   String _profileToJson(UserStepProfile profile) {
     return '${profile.idleBaseline}|${profile.walkingBaseline}|${profile.stepAmplitude}|${profile.walkingVariability}|${profile.walkingStyle.name}|${profile.calibrationDate.millisecondsSinceEpoch}';
   }
 
-  /// Convert JSON string to profile
   UserStepProfile _profileFromJson(String json) {
     final parts = json.split('|');
     return UserStepProfile(
@@ -323,7 +285,6 @@ class StepCalibrationService {
     );
   }
 
-  /// Dispose resources
   void dispose() {
     _calibrationTimer?.cancel();
     _progressController.close();
@@ -331,7 +292,6 @@ class StepCalibrationService {
   }
 }
 
-// Supporting classes
 enum CalibrationPhase {
   preparing,
   idle,

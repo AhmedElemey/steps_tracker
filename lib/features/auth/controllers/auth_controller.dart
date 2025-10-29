@@ -14,7 +14,6 @@ class AuthController extends ChangeNotifier {
   bool _isLoading = false;
   String _errorMessage = '';
 
-  // Getters
   User? get user => _user;
   UserProfile? get userProfile => _userProfile;
   bool get isLoading => _isInitialLoading || _isLoading;
@@ -32,11 +31,9 @@ class AuthController extends ChangeNotifier {
       await _loadUserProfile();
     }
     
-    // Mark initial loading as complete
     _isInitialLoading = false;
     notifyListeners();
     
-    // Listen to auth state changes
     _firebaseService.authStateChanges.listen((user) {
       _user = user;
       if (user != null) {
@@ -56,8 +53,6 @@ class AuthController extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Error loading user profile: $e');
-      // Don't set error message here as it's called during initialization
-      // The user can retry by navigating to profile form if needed
     }
   }
 
@@ -145,7 +140,6 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Update user profile in the controller
   void updateUserProfile(UserProfile profile) {
     _userProfile = profile;
     notifyListeners();

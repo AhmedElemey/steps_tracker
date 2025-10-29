@@ -153,10 +153,8 @@ class _AddWeightDialogState extends State<AddWeightDialog> {
     }
 
     if (mounted) {
-      // Close dialog
       Navigator.of(context).pop();
       
-      // Show success/error message
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

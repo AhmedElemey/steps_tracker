@@ -103,12 +103,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    // Show splash screen for a minimum duration
     _initializeApp();
   }
 
   Future<void> _initializeApp() async {
-    // Wait for minimum splash duration
     await Future.delayed(const Duration(seconds: 1));
     
     if (mounted) {
@@ -120,20 +118,16 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    // Show splash screen while loading
     if (_isLoading) {
       return const SplashScreen();
     }
 
-    // Check authentication state and navigate accordingly
     return Consumer<AuthController>(
       builder: (context, authController, child) {
-        // Wait for auth state to be determined
         if (authController.isLoading) {
           return const SplashScreen();
         }
 
-        // Check authentication state and navigate accordingly
         if (authController.isSignedIn) {
           if (authController.hasProfile) {
             return const MainNavigationPage();

@@ -33,7 +33,6 @@ class _HomePageState extends State<HomePage> {
       _hasShownLocationDialog = true;
       _showLocationPermissionDialog();
     } else {
-      // Start tracking if permission is already granted
       context.read<StepTrackingController>().startTracking();
     }
   }
@@ -47,7 +46,6 @@ class _HomePageState extends State<HomePage> {
       builder: (context) => LocationPermissionDialog(
         onPermissionGranted: () {
           if (!mounted) return;
-          // Start step tracking after permission is granted
           context.read<StepTrackingController>().startTracking();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -140,7 +138,6 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Progress Ring and Step Counter
                   Row(
                     children: [
                       Expanded(
@@ -166,7 +163,6 @@ class _HomePageState extends State<HomePage> {
                   
                   const SizedBox(height: 24),
                   
-                  // Stats Cards
                   Row(
                     children: [
                       Expanded(
@@ -191,7 +187,6 @@ class _HomePageState extends State<HomePage> {
                   
                   const SizedBox(height: 24),
                   
-                  // Step History
                   Text(
                     'Recent Activity',
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -203,7 +198,6 @@ class _HomePageState extends State<HomePage> {
                   
                   const SizedBox(height: 24),
                   
-                  // Tracking Status
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),

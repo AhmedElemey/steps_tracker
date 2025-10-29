@@ -1,16 +1,12 @@
-/// Arabic translations for the Steps Tracker app
 class AppTranslationsAr {
   static const Map<String, String> translations = {
-    // App
     'app_title': 'متتبع الخطوات',
     
-    // Auth
     'welcome': 'مرحباً بك في متتبع الخطوات!',
     'get_started': 'ابدأ الآن',
     'track_your_steps': 'تتبع خطواتك اليومية وأهدافك الرياضية',
     'sign_in_anonymously': 'سجل الدخول بشكل مجهول لبدء تتبع خطواتك',
     
-    // Profile
     'complete_profile': 'أكمل ملفك الشخصي',
     'please_fill_profile': 'يرجى ملء معلومات ملفك الشخصي للبدء',
     'full_name': 'الاسم الكامل',
@@ -19,7 +15,6 @@ class AppTranslationsAr {
     'enter_weight': 'أدخل وزنك بالكيلو',
     'complete_profile_btn': 'أكمل الملف الشخصي',
     
-    // Navigation
     'home': 'الرئيسية',
     'steps': 'الخطوات',
     'weight': 'الوزن',
@@ -28,7 +23,6 @@ class AppTranslationsAr {
     'steps_today': 'الخطوات اليوم',
     'of_goal': 'من {count} هدف',
     
-    // Weight Entries
     'weight_entries': 'سجلات الوزن',
     'add_weight_entry': 'إضافة سجل وزن',
     'edit_weight_entry': 'تعديل سجل الوزن',
@@ -40,7 +34,6 @@ class AppTranslationsAr {
     'weight_deleted': 'تم حذف سجل الوزن بنجاح',
     'delete_weight_confirmation': 'هل أنت متأكد من حذف سجل الوزن {weight} كيلو؟',
     
-    // Steps Entries
     'steps_entries': 'سجلات الخطوات',
     'add_steps_entry': 'إضافة سجل خطوات',
     'edit_steps_entry': 'تعديل سجل الخطوات',
@@ -54,7 +47,6 @@ class AppTranslationsAr {
     'enter_steps': 'أدخل عدد الخطوات',
     'please_enter_steps': 'يرجى إدخال عدد الخطوات',
     
-    // Tracking
     'tracking_active': 'التتبع نشط',
     'tracking_paused': 'التتبع متوقف',
     'steps_being_counted': 'يتم عد خطواتك',
@@ -62,7 +54,6 @@ class AppTranslationsAr {
     'walking': 'تمشي',
     'stopped': 'متوقف',
     
-    // Stats
     'daily_goal': 'الهدف اليومي',
     'complete': 'مكتمل',
     'progress': 'التقدم',
@@ -70,7 +61,6 @@ class AppTranslationsAr {
     'distance': 'المسافة',
     'calories': 'السعرات الحرارية',
     
-    // Settings
     'appearance': 'المظهر',
     'dark_mode': 'الوضع المظلم',
     'light_mode': 'الوضع المضيء',
@@ -85,7 +75,6 @@ class AppTranslationsAr {
     'developer': 'المطور',
     'steps_tracker_team': 'فريق متتبع الخطوات',
     
-    // Actions
     'add': 'إضافة',
     'edit': 'تعديل',
     'delete': 'حذف',
@@ -96,23 +85,19 @@ class AppTranslationsAr {
     'sign_out_confirmation': 'هل أنت متأكد من تسجيل الخروج؟',
     'refresh': 'تحديث',
     
-    // Messages
     'success': 'نجح',
     'error': 'خطأ',
     'loading': 'جاري التحميل...',
     'retry': 'إعادة المحاولة',
     'no_data': 'لا توجد بيانات متاحة',
     
-    // Time
     'just_now': 'الآن',
     'minutes_ago': 'منذ {minutes} دقيقة',
     'hours_ago': 'منذ {hours} ساعة',
     'days_ago': 'منذ {days} يوم',
     
-    // Profile
     'profile_created': 'تم إنشاء الملف الشخصي بنجاح',
     
-    // Validation
     'please_enter_name': 'يرجى إدخال اسمك',
     'please_enter_weight': 'يرجى إدخال وزنك',
     'please_enter_valid_weight': 'يرجى إدخال وزن صحيح',

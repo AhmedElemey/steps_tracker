@@ -34,7 +34,6 @@ class ProfileService {
         updatedAt: now,
       );
 
-      // Retry logic for Firestore unavailable errors
       int retryCount = 0;
       const maxRetries = 3;
       const retryDelay = Duration(seconds: 2);
@@ -51,7 +50,6 @@ class ProfileService {
             rethrow;
           }
           
-          // Wait before retrying
           await Future.delayed(retryDelay * retryCount);
         }
       }
@@ -67,7 +65,6 @@ class ProfileService {
       final user = _firebaseService.currentUser;
       if (user == null) return null;
 
-      // Retry logic for Firestore unavailable errors
       int retryCount = 0;
       const maxRetries = 3;
       const retryDelay = Duration(seconds: 2);
@@ -87,7 +84,6 @@ class ProfileService {
             rethrow;
           }
           
-          // Wait before retrying
           await Future.delayed(retryDelay * retryCount);
         }
       }
@@ -125,21 +121,17 @@ class ProfileService {
     }
   }
 
-  /// Upload profile image and update profile
   Future<UserProfile?> uploadProfileImage(File imageFile) async {
     try {
       final user = _firebaseService.currentUser;
       if (user == null) return null;
 
-      // Get current profile
       final currentProfile = await getProfile();
       if (currentProfile == null) return null;
 
-      // Try Firebase Storage first, fallback to Firestore
       String? imageUrl;
       
       try {
-        // Try Firebase Storage
         if (_imageService.validateImageFile(imageFile)) {
           imageUrl = await _imageService.uploadProfileImage(imageFile);
           if (imageUrl != null) {
@@ -148,10 +140,8 @@ class ProfileService {
         }
       } catch (e) {
         debugPrint('❌ Firebase Storage failed, trying Firestore: $e');
-        // Continue to fallback
       }
 
-      // Fallback to Firestore if Storage fails
       if (imageUrl == null) {
         try {
           imageUrl = await _firestoreImageService.uploadProfileImage(imageFile);
@@ -168,7 +158,6 @@ class ProfileService {
         return null;
       }
 
-      // Update profile with new image URL
       final updatedProfile = currentProfile.copyWith(
         profileImageUrl: imageUrl,
         updatedAt: DateTime.now(),
@@ -176,7 +165,6 @@ class ProfileService {
 
       await _profilesCollection.doc(user.uid).update(updatedProfile.toMap());
 
-      // Clean up old images (only for Storage URLs)
       if (currentProfile.profileImageUrl != null && 
           currentProfile.profileImageUrl!.startsWith('https://')) {
         try {
@@ -193,7 +181,6 @@ class ProfileService {
     }
   }
 
-  /// Upload profile image with progress tracking
   Future<UserProfile?> uploadProfileImageWithProgress(
     File imageFile,
     Function(double progress)? onProgress,
@@ -202,15 +189,12 @@ class ProfileService {
       final user = _firebaseService.currentUser;
       if (user == null) return null;
 
-      // Get current profile
       final currentProfile = await getProfile();
       if (currentProfile == null) return null;
 
-      // Try Firebase Storage first with progress tracking, fallback to Firestore
       String? imageUrl;
       
       try {
-        // Try Firebase Storage with progress tracking
         if (_imageService.validateImageFile(imageFile)) {
           imageUrl = await _imageService.uploadProfileImageWithProgress(
             imageFile,
@@ -222,13 +206,10 @@ class ProfileService {
         }
       } catch (e) {
         debugPrint('❌ Firebase Storage failed, trying Firestore: $e');
-        // Continue to fallback
       }
 
-      // Fallback to Firestore if Storage fails (no progress tracking for Firestore)
       if (imageUrl == null) {
         try {
-          // Simulate progress for Firestore upload
           onProgress?.call(0.5);
           imageUrl = await _firestoreImageService.uploadProfileImage(imageFile);
           onProgress?.call(1.0);
@@ -245,7 +226,6 @@ class ProfileService {
         return null;
       }
 
-      // Update profile with new image URL
       final updatedProfile = currentProfile.copyWith(
         profileImageUrl: imageUrl,
         updatedAt: DateTime.now(),
@@ -253,7 +233,6 @@ class ProfileService {
 
       await _profilesCollection.doc(user.uid).update(updatedProfile.toMap());
 
-      // Clean up old images (only for Storage URLs)
       if (currentProfile.profileImageUrl != null && 
           currentProfile.profileImageUrl!.startsWith('https://')) {
         try {
@@ -270,7 +249,6 @@ class ProfileService {
     }
   }
 
-  /// Delete profile image
   Future<UserProfile?> deleteProfileImage() async {
     try {
       final user = _firebaseService.currentUser;
@@ -284,15 +262,12 @@ class ProfileService {
       final imageUrl = currentProfile.profileImageUrl!;
       bool deleted = false;
 
-      // Delete from appropriate storage
       if (imageUrl.startsWith('firestore://')) {
-        // Delete from Firestore
         deleted = await _firestoreImageService.deleteProfileImage(imageUrl);
         if (deleted) {
           debugPrint('✅ Image deleted from Firestore');
         }
       } else if (imageUrl.startsWith('https://')) {
-        // Delete from Firebase Storage
         try {
           deleted = await _imageService.deleteProfileImage(imageUrl);
           if (deleted) {
@@ -300,11 +275,9 @@ class ProfileService {
           }
         } catch (e) {
           debugPrint('❌ Failed to delete from Storage: $e');
-          // Continue anyway to remove from profile
         }
       }
 
-      // Update profile to remove image URL (even if deletion failed)
       final updatedProfile = currentProfile.copyWith(
         profileImageUrl: null,
         updatedAt: DateTime.now(),

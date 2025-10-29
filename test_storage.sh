@@ -1,7 +1,4 @@
-#!/bin/bash
 
-# Script to test Firebase Storage after enabling it
-# This script will run a quick test to verify Storage is working
 
 echo "🧪 Firebase Storage Test"
 echo "========================"
@@ -14,14 +11,12 @@ echo ""
 echo "🔍 Testing Firebase Storage connection..."
 echo ""
 
-# Check if Firebase CLI is available
 if ! command -v firebase &> /dev/null; then
     echo "❌ Firebase CLI not found"
     echo "Please install Firebase CLI: npm install -g firebase-tools"
     exit 1
 fi
 
-# Check current project
 CURRENT_PROJECT=$(firebase use 2>/dev/null | head -n1)
 echo "📋 Current project: $CURRENT_PROJECT"
 

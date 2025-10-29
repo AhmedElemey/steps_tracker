@@ -7,41 +7,26 @@ import '../models/walking_state.dart';
 import 'cwt_step_detection_service.dart';
 import 'enhanced_peak_detection_service.dart';
 
-/// Sensor Fusion Service for Robust Step Counting
-/// 
-/// This service implements a comprehensive sensor fusion strategy that combines:
-/// 1. Hardware step counter (low-power baseline)
-/// 2. Software algorithms (CWT and Enhanced Peak Detection)
-/// 3. Intelligent fallback and gap-filling mechanisms
-/// 4. Battery optimization through adaptive processing
-/// 
-/// Based on research showing that combining hardware and software approaches
-/// provides the most robust and accurate step counting across different scenarios.
 class SensorFusionService {
   static final SensorFusionService _instance = SensorFusionService._internal();
   factory SensorFusionService() => _instance;
   SensorFusionService._internal();
 
-  // Core services
   final CWTStepDetectionService _cwtService = CWTStepDetectionService();
   final EnhancedPeakDetectionService _enhancedPeakService = EnhancedPeakDetectionService();
   
-  // Stream controllers
   final StreamController<int> _fusedStepsController = StreamController<int>.broadcast();
   final StreamController<WalkingStateData> _fusedWalkingStateController = StreamController<WalkingStateData>.broadcast();
   final StreamController<SensorFusionStatus> _fusionStatusController = StreamController<SensorFusionStatus>.broadcast();
 
-  // Stream subscriptions
   StreamSubscription<StepCount>? _hardwareStepStream;
   StreamSubscription<int>? _cwtStepsStream;
   StreamSubscription<int>? _enhancedPeakStepsStream;
   StreamSubscription<WalkingStateData>? _cwtWalkingStateStream;
   StreamSubscription<WalkingStateData>? _enhancedPeakWalkingStateStream;
 
-  // Configuration
   StepDetectionConfig _config = const StepDetectionConfig();
   
-  // Fusion state
   int _hardwareSteps = 0;
   int _cwtSteps = 0;
   int _enhancedPeakSteps = 0;
@@ -50,23 +35,18 @@ class SensorFusionService {
   DateTime? _lastCWTUpdate;
   DateTime? _lastEnhancedPeakUpdate;
   
-  // Fusion algorithm state
   SensorFusionMode _currentMode = SensorFusionMode.adaptive;
   double _hardwareConfidence = 0.0;
   double _cwtConfidence = 0.0;
   double _enhancedPeakConfidence = 0.0;
   
-  // Battery optimization
   bool _isLowPowerMode = false;
   Timer? _batteryOptimizationTimer;
   int _processingInterval = 100; // ms - how often to process data
   
-  // Gap filling and validation
   final List<StepReading> _recentReadings = [];
   final int _maxRecentReadings = 50;
-  // final Duration _gapFillingWindow = const Duration(seconds: 5); // unused
 
-  // Getters
   int get fusedSteps => _fusedSteps;
   SensorFusionMode get currentMode => _currentMode;
   bool get isLowPowerMode => _isLowPowerMode;
@@ -82,29 +62,22 @@ class SensorFusionService {
     isLowPowerMode: _isLowPowerMode,
   );
 
-  // Streams
   Stream<int> get fusedStepsStream => _fusedStepsController.stream;
   Stream<WalkingStateData> get fusedWalkingStateStream => _fusedWalkingStateController.stream;
   Stream<SensorFusionStatus> get fusionStatusStream => _fusionStatusController.stream;
 
-  /// Start sensor fusion step detection
   Future<void> startFusion() async {
     debugPrint('Starting sensor fusion step detection...');
 
-    // Reset all counters
     _resetFusionState();
 
     try {
-      // Start hardware step counter (low-power baseline)
       await _startHardwareStepCounter();
       
-      // Start software algorithms
       await _startSoftwareAlgorithms();
       
-      // Start battery optimization
       _startBatteryOptimization();
       
-      // Emit initial status
       _emitFusionStatus();
       
       debugPrint('Sensor fusion started successfully');
@@ -114,7 +87,6 @@ class SensorFusionService {
     }
   }
 
-  /// Stop sensor fusion
   Future<void> stopFusion() async {
     await _hardwareStepStream?.cancel();
     await _cwtStepsStream?.cancel();
@@ -130,7 +102,6 @@ class SensorFusionService {
     debugPrint('Sensor fusion stopped');
   }
 
-  /// Update configuration
   void updateConfig(StepDetectionConfig newConfig) {
     _config = newConfig;
     _cwtService.updateConfig(newConfig);
@@ -138,7 +109,6 @@ class SensorFusionService {
     debugPrint('Sensor fusion config updated: $newConfig');
   }
 
-  /// Start hardware step counter
   Future<void> _startHardwareStepCounter() async {
     try {
       _hardwareStepStream = Pedometer.stepCountStream.listen(
@@ -152,9 +122,7 @@ class SensorFusionService {
     }
   }
 
-  /// Start software algorithms
   Future<void> _startSoftwareAlgorithms() async {
-    // Start CWT service
     await _cwtService.startDetection();
     _cwtStepsStream = _cwtService.stepsStream.listen(
       _onCWTSteps,
@@ -165,7 +133,6 @@ class SensorFusionService {
       onError: _onCWTError,
     );
 
-    // Start Enhanced Peak Detection service
     await _enhancedPeakService.startDetection();
     _enhancedPeakStepsStream = _enhancedPeakService.stepsStream.listen(
       _onEnhancedPeakSteps,
@@ -179,64 +146,52 @@ class SensorFusionService {
     debugPrint('Software algorithms started');
   }
 
-  /// Start battery optimization
   void _startBatteryOptimization() {
     _batteryOptimizationTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
       _optimizeBatteryUsage();
     });
   }
 
-  /// Handle hardware step count updates
   void _onHardwareStepCount(StepCount event) {
     _hardwareSteps = event.steps;
     _lastHardwareUpdate = event.timeStamp;
     
-    // Calculate hardware confidence based on update frequency and consistency
     _updateHardwareConfidence();
     
     debugPrint('Hardware steps: $_hardwareSteps');
     _performSensorFusion();
   }
 
-  /// Handle CWT step count updates
   void _onCWTSteps(int steps) {
     _cwtSteps = steps;
     _lastCWTUpdate = DateTime.now();
     
-    // Calculate CWT confidence based on frequency analysis quality
     _updateCWTConfidence();
     
     debugPrint('CWT steps: $_cwtSteps');
     _performSensorFusion();
   }
 
-  /// Handle Enhanced Peak Detection step count updates
   void _onEnhancedPeakSteps(int steps) {
     _enhancedPeakSteps = steps;
     _lastEnhancedPeakUpdate = DateTime.now();
     
-    // Calculate Enhanced Peak confidence based on signal quality
     _updateEnhancedPeakConfidence();
     
     debugPrint('Enhanced Peak steps: $_enhancedPeakSteps');
     _performSensorFusion();
   }
 
-  /// Handle CWT walking state updates
   void _onCWTWalkingState(WalkingStateData state) {
-    // Use CWT walking state for fusion decisions
     _cwtConfidence = state.confidence;
     _performSensorFusion();
   }
 
-  /// Handle Enhanced Peak walking state updates
   void _onEnhancedPeakWalkingState(WalkingStateData state) {
-    // Use Enhanced Peak walking state for fusion decisions
     _enhancedPeakConfidence = state.confidence;
     _performSensorFusion();
   }
 
-  /// Update hardware confidence
   void _updateHardwareConfidence() {
     if (_lastHardwareUpdate == null) {
       _hardwareConfidence = 0.0;
@@ -245,7 +200,6 @@ class SensorFusionService {
     
     final timeSinceUpdate = DateTime.now().difference(_lastHardwareUpdate!);
     
-    // Hardware confidence decreases over time without updates
     if (timeSinceUpdate.inSeconds < 5) {
       _hardwareConfidence = 1.0; // High confidence for recent updates
     } else if (timeSinceUpdate.inSeconds < 30) {
@@ -257,7 +211,6 @@ class SensorFusionService {
     }
   }
 
-  /// Update CWT confidence
   void _updateCWTConfidence() {
     if (_lastCWTUpdate == null) {
       _cwtConfidence = 0.0;
@@ -266,7 +219,6 @@ class SensorFusionService {
     
     final timeSinceUpdate = DateTime.now().difference(_lastCWTUpdate!);
     
-    // CWT confidence based on frequency analysis quality and update recency
     double baseConfidence = 0.7; // Base confidence for CWT
     
     if (timeSinceUpdate.inSeconds < 2) {
@@ -278,7 +230,6 @@ class SensorFusionService {
     _cwtConfidence = baseConfidence;
   }
 
-  /// Update Enhanced Peak confidence
   void _updateEnhancedPeakConfidence() {
     if (_lastEnhancedPeakUpdate == null) {
       _enhancedPeakConfidence = 0.0;
@@ -287,7 +238,6 @@ class SensorFusionService {
     
     final timeSinceUpdate = DateTime.now().difference(_lastEnhancedPeakUpdate!);
     
-    // Enhanced Peak confidence based on signal quality and update recency
     double baseConfidence = 0.8; // Base confidence for Enhanced Peak
     
     if (timeSinceUpdate.inSeconds < 2) {
@@ -299,18 +249,14 @@ class SensorFusionService {
     _enhancedPeakConfidence = baseConfidence;
   }
 
-  /// Perform sensor fusion algorithm
   void _performSensorFusion() {
-    // Determine fusion mode based on available data and confidence levels
     _determineFusionMode();
     
-    // Calculate fused step count based on current mode
     final newFusedSteps = _calculateFusedSteps();
     
     if (newFusedSteps != _fusedSteps) {
       _fusedSteps = newFusedSteps;
       
-      // Store reading for gap filling and validation
       _storeStepReading(StepReading(
         steps: _fusedSteps,
         timestamp: DateTime.now(),
@@ -318,25 +264,20 @@ class SensorFusionService {
         confidence: _getOverallConfidence(),
       ));
       
-      // Emit fused step count
       _fusedStepsController.add(_fusedSteps);
       
-      // Emit fusion status
       _emitFusionStatus();
       
       debugPrint('Fused steps: $_fusedSteps (mode: $_currentMode)');
     }
   }
 
-  /// Determine optimal fusion mode
   void _determineFusionMode() {
-    // Check if we're in low power mode
     if (_isLowPowerMode) {
       _currentMode = SensorFusionMode.hardwareOnly;
       return;
     }
     
-    // Check data availability and confidence
     final hasHardware = _hardwareConfidence > 0.5;
     final hasCWT = _cwtConfidence > 0.5;
     final hasEnhancedPeak = _enhancedPeakConfidence > 0.5;
@@ -356,14 +297,12 @@ class SensorFusionService {
     }
   }
 
-  /// Calculate fused step count based on current mode
   int _calculateFusedSteps() {
     switch (_currentMode) {
       case SensorFusionMode.hardwareOnly:
         return _hardwareSteps;
         
       case SensorFusionMode.softwareOnly:
-        // Use weighted average of software algorithms
         if (_cwtConfidence > 0 && _enhancedPeakConfidence > 0) {
           final totalConfidence = _cwtConfidence + _enhancedPeakConfidence;
           final cwtWeight = _cwtConfidence / totalConfidence;
@@ -376,7 +315,6 @@ class SensorFusionService {
         }
         
       case SensorFusionMode.hardwareSoftware:
-        // Combine hardware with software for gap filling
         final hardwareWeight = _hardwareConfidence;
         final softwareWeight = max(_cwtConfidence, _enhancedPeakConfidence);
         final totalWeight = hardwareWeight + softwareWeight;
@@ -389,7 +327,6 @@ class SensorFusionService {
         return _hardwareSteps;
         
       case SensorFusionMode.fullFusion:
-        // Full fusion with all available data
         final totalConfidence = _hardwareConfidence + _cwtConfidence + _enhancedPeakConfidence;
         if (totalConfidence > 0) {
           final hardwareWeight = _hardwareConfidence / totalConfidence;
@@ -403,7 +340,6 @@ class SensorFusionService {
         return _hardwareSteps;
         
       case SensorFusionMode.adaptive:
-        // Adaptive mode - use best available source
         if (_hardwareConfidence > max(_cwtConfidence, _enhancedPeakConfidence)) {
           return _hardwareSteps;
         } else if (_cwtConfidence > _enhancedPeakConfidence) {
@@ -414,7 +350,6 @@ class SensorFusionService {
     }
   }
 
-  /// Store step reading for gap filling and validation
   void _storeStepReading(StepReading reading) {
     _recentReadings.add(reading);
     if (_recentReadings.length > _maxRecentReadings) {
@@ -422,7 +357,6 @@ class SensorFusionService {
     }
   }
 
-  /// Get primary data source
   String _getPrimarySource() {
     switch (_currentMode) {
       case SensorFusionMode.hardwareOnly:
@@ -438,7 +372,6 @@ class SensorFusionService {
     }
   }
 
-  /// Get overall confidence
   double _getOverallConfidence() {
     switch (_currentMode) {
       case SensorFusionMode.hardwareOnly:
@@ -454,20 +387,15 @@ class SensorFusionService {
     }
   }
 
-  /// Optimize battery usage
   void _optimizeBatteryUsage() {
-    // Check if we should enter low power mode
     final timeSinceLastUpdate = _getTimeSinceLastUpdate();
     
     if (timeSinceLastUpdate.inSeconds > 60) {
-      // No activity for 1 minute - enter low power mode
       _enterLowPowerMode();
     } else if (_isLowPowerMode && timeSinceLastUpdate.inSeconds < 10) {
-      // Activity detected - exit low power mode
       _exitLowPowerMode();
     }
     
-    // Adjust processing interval based on activity
     if (_isLowPowerMode) {
       _processingInterval = 1000; // 1 second intervals in low power mode
     } else {
@@ -475,7 +403,6 @@ class SensorFusionService {
     }
   }
 
-  /// Get time since last update from any source
   Duration _getTimeSinceLastUpdate() {
     final times = <DateTime?>[_lastHardwareUpdate, _lastCWTUpdate, _lastEnhancedPeakUpdate];
     final validTimes = times.where((time) => time != null).cast<DateTime>();
@@ -488,7 +415,6 @@ class SensorFusionService {
     return DateTime.now().difference(latestTime);
   }
 
-  /// Enter low power mode
   void _enterLowPowerMode() {
     if (!_isLowPowerMode) {
       _isLowPowerMode = true;
@@ -497,7 +423,6 @@ class SensorFusionService {
     }
   }
 
-  /// Exit low power mode
   void _exitLowPowerMode() {
     if (_isLowPowerMode) {
       _isLowPowerMode = false;
@@ -506,12 +431,10 @@ class SensorFusionService {
     }
   }
 
-  /// Emit fusion status
   void _emitFusionStatus() {
     _fusionStatusController.add(currentStatus);
   }
 
-  /// Reset fusion state
   void _resetFusionState() {
     _hardwareSteps = 0;
     _cwtSteps = 0;
@@ -528,7 +451,6 @@ class SensorFusionService {
     _recentReadings.clear();
   }
 
-  /// Error handlers
   void _onHardwareError(dynamic error) {
     debugPrint('Hardware step counter error: $error');
     _hardwareConfidence = 0.0;
@@ -552,7 +474,6 @@ class SensorFusionService {
     _emitFusionStatus();
   }
 
-  /// Dispose resources
   void dispose() {
     stopFusion();
     _fusedStepsController.close();
@@ -561,7 +482,6 @@ class SensorFusionService {
   }
 }
 
-/// Sensor fusion modes
 enum SensorFusionMode {
   hardwareOnly,      // Use only hardware step counter
   softwareOnly,      // Use only software algorithms
@@ -570,7 +490,6 @@ enum SensorFusionMode {
   adaptive,          // Automatically choose best source
 }
 
-/// Sensor fusion status
 class SensorFusionStatus {
   final SensorFusionMode mode;
   final int hardwareSteps;
@@ -600,7 +519,6 @@ class SensorFusionStatus {
   }
 }
 
-/// Step reading for gap filling and validation
 class StepReading {
   final int steps;
   final DateTime timestamp;

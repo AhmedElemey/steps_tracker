@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/localization_service.dart';
 
-/// Helper extension to easily access localization in widgets
 extension LocalizationExtension on BuildContext {
   LocalizationService get l10n {
     return read<LocalizationService>();
@@ -13,7 +12,6 @@ extension LocalizationExtension on BuildContext {
   }
 }
 
-/// Helper widget to automatically rebuild when language changes
 class LocalizedText extends StatelessWidget {
   final String translationKey;
   final Map<String, String>? params;

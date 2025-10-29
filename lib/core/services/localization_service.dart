@@ -9,7 +9,6 @@ class LocalizationService extends ChangeNotifier {
   Locale _locale = const Locale('en', 'US');
   bool _isRTL = false;
 
-  // Getters
   Locale get locale => _locale;
   bool get isRTL => _isRTL;
 
@@ -55,7 +54,6 @@ class LocalizationService extends ChangeNotifier {
     final translations = _getTranslations();
     String text = translations[key] ?? key;
     
-    // Replace placeholders
     if (params != null) {
       params.forEach((paramKey, paramValue) {
         text = text.replaceAll('{$paramKey}', paramValue);

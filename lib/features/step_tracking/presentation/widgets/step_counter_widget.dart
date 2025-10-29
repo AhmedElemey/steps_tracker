@@ -72,7 +72,6 @@ class StepCounterWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          // Progress bar
           Container(
             height: 6,
             decoration: BoxDecoration(
@@ -91,7 +90,6 @@ class StepCounterWidget extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          // Status indicator
           Row(
             children: [
               Container(

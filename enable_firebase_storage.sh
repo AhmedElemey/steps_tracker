@@ -1,18 +1,13 @@
-#!/bin/bash
 
-# Script to help enable Firebase Storage
-# This script will guide you through enabling Firebase Storage
 
 echo "🔧 Firebase Storage Setup Helper"
 echo "================================"
 echo ""
 
-# Get project ID
 PROJECT_ID="steps-tracker-1760794907"
 echo "📋 Project ID: $PROJECT_ID"
 echo ""
 
-# Check if Firebase CLI is available
 if command -v firebase &> /dev/null; then
     echo "✅ Firebase CLI is available"
     CURRENT_PROJECT=$(firebase use 2>/dev/null | head -n1)

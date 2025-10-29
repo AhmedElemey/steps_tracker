@@ -25,7 +25,6 @@ class BackgroundService {
     try {
       if (_isRunning) return true;
 
-      // Check permissions
       final hasPermission = await Permission.activityRecognition.isGranted;
       if (hasPermission != PermissionStatus.granted) {
         final granted = await Permission.activityRecognition.request();
@@ -35,13 +34,11 @@ class BackgroundService {
         }
       }
 
-      // Start step count stream
       _stepCountStream = Pedometer.stepCountStream.listen(
         _onStepCount,
         onError: _onError,
       );
 
-      // Start background timer to save data periodically
       _backgroundTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
         _saveCurrentSteps();
       });
@@ -74,7 +71,6 @@ class BackgroundService {
     _lastSteps = event.steps;
     _lastUpdate = event.timeStamp;
     
-    // Save to Firestore if user is signed in
     if (_firebaseService.isSignedIn) {
       _stepsService.addStepsEntry(_lastSteps);
     }
@@ -91,7 +87,6 @@ class BackgroundService {
   }
 
   Future<void> initialize() async {
-    // Initialize background tracking when app starts
     if (_firebaseService.isSignedIn) {
       await startBackgroundTracking();
     }

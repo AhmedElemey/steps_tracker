@@ -1,28 +1,23 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
-/// Simple test to verify Firebase Storage is working
 class FirebaseStorageTest {
   static Future<void> runStorageTest() async {
     debugPrint('🧪 Starting Firebase Storage Test...');
     
     try {
-      // Test 1: Get storage instance
       debugPrint('Test 1: Getting Firebase Storage instance...');
       final storage = FirebaseStorage.instance;
       debugPrint('✅ Storage instance created');
       
-      // Test 2: Get bucket info
       debugPrint('Test 2: Getting storage bucket...');
       final bucket = storage.ref().bucket;
       debugPrint('✅ Storage bucket: $bucket');
       
-      // Test 3: Create a reference
       debugPrint('Test 3: Creating storage reference...');
       final testRef = storage.ref().child('test/connection_test.txt');
       debugPrint('✅ Test reference created: ${testRef.fullPath}');
       
-      // Test 4: Try to upload a simple text file
       debugPrint('Test 4: Testing upload...');
       final testData = 'Hello Firebase Storage!';
       final bytes = Uint8List.fromList(testData.codeUnits);
@@ -31,12 +26,10 @@ class FirebaseStorageTest {
       final snapshot = await uploadTask;
       debugPrint('✅ Upload successful');
       
-      // Test 5: Get download URL
       debugPrint('Test 5: Getting download URL...');
       final downloadUrl = await snapshot.ref.getDownloadURL();
       debugPrint('✅ Download URL: $downloadUrl');
       
-      // Test 6: Clean up - delete the test file
       debugPrint('Test 6: Cleaning up test file...');
       await snapshot.ref.delete();
       debugPrint('✅ Test file deleted');
@@ -90,7 +83,6 @@ class FirebaseStorageTest {
     }
   }
   
-  /// Quick test to check if Storage is enabled
   static Future<bool> isStorageEnabled() async {
     try {
       final storage = FirebaseStorage.instance;

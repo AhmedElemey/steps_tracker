@@ -5,9 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'firebase_service.dart';
 
-/// Alternative image service using Firestore for storage
-/// This service stores images as base64 strings in Firestore
-/// Use this when Firebase Storage is not available (free tier)
 class FirestoreImageService {
   static final FirestoreImageService _instance = FirestoreImageService._internal();
   factory FirestoreImageService() => _instance;
@@ -17,7 +14,6 @@ class FirestoreImageService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final ImagePicker _imagePicker = ImagePicker();
 
-  /// Pick an image from gallery or camera
   Future<File?> pickImage({ImageSource source = ImageSource.gallery}) async {
     try {
       final XFile? pickedFile = await _imagePicker.pickImage(
@@ -37,7 +33,6 @@ class FirestoreImageService {
     }
   }
 
-  /// Upload profile image as base64 to Firestore
   Future<String?> uploadProfileImage(File imageFile) async {
     try {
       final user = _firebaseService.currentUser;
@@ -46,20 +41,16 @@ class FirestoreImageService {
         return null;
       }
 
-      // Validate image file
       if (!_validateImageFile(imageFile)) {
         debugPrint('Invalid image file');
         return null;
       }
 
-      // Convert image to base64
       final bytes = await imageFile.readAsBytes();
       final base64String = base64Encode(bytes);
       
-      // Create a unique identifier
       final imageId = 'profile_${user.uid}_${DateTime.now().millisecondsSinceEpoch}';
       
-      // Store in Firestore
       await _firestore
           .collection('user_images')
           .doc(imageId)
@@ -71,7 +62,6 @@ class FirestoreImageService {
         'uploadedAt': FieldValue.serverTimestamp(),
       });
 
-      // Return the image ID as the "URL"
       return 'firestore://$imageId';
     } catch (e) {
       debugPrint('Error uploading profile image to Firestore: $e');
@@ -79,7 +69,6 @@ class FirestoreImageService {
     }
   }
 
-  /// Get profile image from Firestore
   Future<String?> getProfileImage(String imageId) async {
     try {
       if (!imageId.startsWith('firestore://')) {
@@ -103,7 +92,6 @@ class FirestoreImageService {
     }
   }
 
-  /// Delete profile image from Firestore
   Future<bool> deleteProfileImage(String imageId) async {
     try {
       if (!imageId.startsWith('firestore://')) {
@@ -124,16 +112,13 @@ class FirestoreImageService {
     }
   }
 
-  /// Validate image file
   bool _validateImageFile(File imageFile) {
     try {
-      // Check if file exists
       if (!imageFile.existsSync()) {
         debugPrint('Image file does not exist');
         return false;
       }
 
-      // Check file size (max 1MB for base64 storage)
       final fileSize = imageFile.lengthSync();
       const maxSize = 1024 * 1024; // 1MB
       if (fileSize > maxSize) {
@@ -148,7 +133,6 @@ class FirestoreImageService {
     }
   }
 
-  /// Get image file size in KB
   double getImageFileSize(File imageFile) {
     try {
       final bytes = imageFile.lengthSync();

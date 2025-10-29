@@ -273,7 +273,6 @@ class _GoalsPageState extends State<GoalsPage> {
   }
 
   void _showEditGoalDialog(BuildContext context, Goal goal, GoalsController controller) {
-    // Implementation for editing goals
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Edit functionality coming soon!')),
     );

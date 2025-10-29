@@ -80,7 +80,6 @@ class StepsService {
             .get();
       } catch (e) {
         debugPrint('OrderBy query failed, trying without orderBy: $e');
-        // Fallback: Query without orderBy and sort in memory
         querySnapshot = await _stepsEntriesCollection
             .where('userId', isEqualTo: user.uid)
             .get();
@@ -89,7 +88,6 @@ class StepsService {
             .map((doc) => StepsEntry.fromMap(doc.data() as Map<String, dynamic>))
             .toList();
         
-        // Sort by timestamp in descending order
         entries.sort((a, b) => b.timestamp.compareTo(a.timestamp));
         return entries;
       }
@@ -129,7 +127,6 @@ class StepsService {
               .where((entry) => entry != null)
               .cast<StepsEntry>()
               .toList();
-          // Sort by timestamp in descending order
           entries.sort((a, b) => b.timestamp.compareTo(a.timestamp));
           return entries;
         })

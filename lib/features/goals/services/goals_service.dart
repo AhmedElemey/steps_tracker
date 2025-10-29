@@ -90,10 +90,8 @@ class GoalsService {
   }
 
   Future<void> setActiveGoal(int goalId) async {
-    // First deactivate all goals
     await deactivateAllGoals();
     
-    // Then activate the selected goal
     final goals = await getAllGoals();
     final goalToActivate = goals.firstWhere((goal) => goal.id == goalId);
     final activatedGoal = goalToActivate.copyWith(

@@ -82,7 +82,6 @@ class WeightService {
 
       debugPrint('Fetching weight entries for user: ${user.uid}');
       
-      // Try with orderBy - this might require a compound index
       try {
         final querySnapshot = await _weightEntriesCollection
             .where('userId', isEqualTo: user.uid)
@@ -102,7 +101,6 @@ class WeightService {
         debugPrint('Error with orderBy query: $e');
         debugPrint('Trying without orderBy...');
         
-        // Fallback: get without orderBy and sort in memory
         final querySnapshot = await _weightEntriesCollection
             .where('userId', isEqualTo: user.uid)
             .get();
@@ -130,7 +128,6 @@ class WeightService {
 
     debugPrint('Listening to weight entries stream for user: ${user.uid}');
     
-    // Use try-catch for the stream as well
     return _weightEntriesCollection
         .where('userId', isEqualTo: user.uid)
         .orderBy('date', descending: true)
@@ -143,7 +140,6 @@ class WeightService {
         })
         .handleError((error) {
           debugPrint('Stream error: $error');
-          // Try without orderBy as fallback
           return _weightEntriesCollection
               .where('userId', isEqualTo: user.uid)
               .snapshots()

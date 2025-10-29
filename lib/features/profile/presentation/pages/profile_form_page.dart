@@ -47,7 +47,6 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Welcome message
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -93,7 +92,6 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                   
                   const SizedBox(height: 32),
                   
-                  // Name field
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
@@ -167,7 +165,6 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                   
                   const SizedBox(height: 32),
                   
-                  // Error message
                   if (authController.errorMessage.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -193,7 +190,6 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
                   if (authController.errorMessage.isNotEmpty)
                     const SizedBox(height: 16),
                   
-                  // Submit button
                   ElevatedButton(
                     onPressed: authController.isLoading ? null : _submitForm,
                     style: ElevatedButton.styleFrom(
@@ -241,7 +237,6 @@ class _ProfileFormPageState extends State<ProfileFormPage> {
     );
 
     if (success && mounted) {
-      // Navigate to main app
       Navigator.of(context).pushReplacementNamed('/main');
     }
   }

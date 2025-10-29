@@ -1,16 +1,12 @@
-/// English translations for the Steps Tracker app
 class AppTranslationsEn {
   static const Map<String, String> translations = {
-    // App
     'app_title': 'Steps Tracker',
     
-    // Auth
     'welcome': 'Welcome to Steps Tracker!',
     'get_started': 'Get Started',
     'track_your_steps': 'Track your daily steps and fitness goals',
     'sign_in_anonymously': 'Sign in anonymously to start tracking your steps',
     
-    // Profile
     'complete_profile': 'Complete Your Profile',
     'please_fill_profile': 'Please fill out your profile information to get started',
     'full_name': 'Full Name',
@@ -19,7 +15,6 @@ class AppTranslationsEn {
     'enter_weight': 'Enter your weight in kilograms',
     'complete_profile_btn': 'Complete Profile',
     
-    // Navigation
     'home': 'Home',
     'steps': 'Steps',
     'weight': 'Weight',
@@ -28,7 +23,6 @@ class AppTranslationsEn {
     'steps_today': 'Steps Today',
     'of_goal': 'of {count} goal',
     
-    // Weight Entries
     'weight_entries': 'Weight Entries',
     'add_weight_entry': 'Add Weight Entry',
     'edit_weight_entry': 'Edit Weight Entry',
@@ -40,7 +34,6 @@ class AppTranslationsEn {
     'weight_deleted': 'Weight entry deleted successfully',
     'delete_weight_confirmation': 'Are you sure you want to delete this weight entry of {weight} kg?',
     
-    // Steps Entries
     'steps_entries': 'Steps Entries',
     'add_steps_entry': 'Add Steps Entry',
     'edit_steps_entry': 'Edit Steps Entry',
@@ -54,7 +47,6 @@ class AppTranslationsEn {
     'enter_steps': 'Enter number of steps',
     'please_enter_steps': 'Please enter the number of steps',
     
-    // Tracking
     'tracking_active': 'Tracking Active',
     'tracking_paused': 'Tracking Paused',
     'steps_being_counted': 'Your steps are being counted',
@@ -62,7 +54,6 @@ class AppTranslationsEn {
     'walking': 'Walking',
     'stopped': 'Stopped',
     
-    // Stats
     'daily_goal': 'Daily Goal',
     'complete': 'Complete',
     'progress': 'Progress',
@@ -70,7 +61,6 @@ class AppTranslationsEn {
     'distance': 'Distance',
     'calories': 'Calories',
     
-    // Settings
     'appearance': 'Appearance',
     'dark_mode': 'Dark Mode',
     'light_mode': 'Light Mode',
@@ -85,7 +75,6 @@ class AppTranslationsEn {
     'developer': 'Developer',
     'steps_tracker_team': 'Steps Tracker Team',
     
-    // Actions
     'add': 'Add',
     'edit': 'Edit',
     'delete': 'Delete',
@@ -96,23 +85,19 @@ class AppTranslationsEn {
     'sign_out_confirmation': 'Are you sure you want to sign out?',
     'refresh': 'Refresh',
     
-    // Messages
     'success': 'Success',
     'error': 'Error',
     'loading': 'Loading...',
     'retry': 'Retry',
     'no_data': 'No data available',
     
-    // Time
     'just_now': 'Just now',
     'minutes_ago': '{minutes}m ago',
     'hours_ago': '{hours}h ago',
     'days_ago': '{days}d ago',
     
-    // Profile
     'profile_created': 'Profile created successfully',
     
-    // Validation
     'please_enter_name': 'Please enter your name',
     'please_enter_weight': 'Please enter your weight',
     'please_enter_valid_weight': 'Please enter a valid weight',

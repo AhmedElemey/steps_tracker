@@ -6,14 +6,6 @@ import '../../../core/services/firestore_image_service.dart';
 import '../services/profile_service.dart';
 import '../models/user_profile.dart';
 
-/// Widget for selecting and uploading profile images
-/// 
-/// This widget provides:
-/// - Image selection from gallery or camera
-/// - Image preview
-/// - Upload progress indicator
-/// - Error handling
-/// - Image validation
 class ImagePickerWidget extends StatefulWidget {
   final UserProfile? userProfile;
   final Function(UserProfile?)? onImageUpdated;
@@ -48,7 +40,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Profile Image Display
         GestureDetector(
           onTap: widget.showUploadButton ? _showImagePickerDialog : null,
           child: Container(
@@ -77,7 +68,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         
         const SizedBox(height: 8),
         
-        // Upload Progress
         if (_isUploading) ...[
           SizedBox(
             width: widget.size,
@@ -97,7 +87,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
           ),
         ],
         
-        // Error Message
         if (_errorMessage != null) ...[
           const SizedBox(height: 4),
           Text(
@@ -110,7 +99,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
           ),
         ],
         
-        // Upload Button
         if (widget.showUploadButton && !_isUploading) ...[
           const SizedBox(height: 8),
           ElevatedButton.icon(
@@ -148,7 +136,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
     if (widget.userProfile?.profileImageUrl != null) {
       final imageUrl = widget.userProfile!.profileImageUrl!;
       
-      // Handle Firestore base64 images
       if (imageUrl.startsWith('firestore://')) {
         return FutureBuilder<String?>(
           future: _getFirestoreImage(imageUrl),
@@ -180,7 +167,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         );
       }
       
-      // Handle Firebase Storage URLs
       return Image.network(
         imageUrl,
         fit: BoxFit.cover,
@@ -250,7 +236,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Handle bar
           Container(
             width: 40,
             height: 4,
@@ -272,7 +257,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              // Camera option
               _buildImageSourceOption(
                 icon: Icons.camera_alt,
                 label: 'Camera',
@@ -282,7 +266,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
                 },
               ),
               
-              // Gallery option
               _buildImageSourceOption(
                 icon: Icons.photo_library,
                 label: 'Gallery',
@@ -296,7 +279,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
           
           const SizedBox(height: 20),
           
-          // Delete current image option
           if (widget.userProfile?.profileImageUrl != null) ...[
             const Divider(),
             const SizedBox(height: 10),
@@ -368,7 +350,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         _errorMessage = null;
       });
 
-      // Pick image
       final imageFile = await _imageService.pickImage(source: source);
       if (imageFile == null) {
         setState(() {
@@ -378,7 +359,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         return;
       }
 
-      // Validate image
       if (!_imageService.validateImageFile(imageFile)) {
         setState(() {
           _isUploading = false;
@@ -387,7 +367,6 @@ class _ImagePickerWidgetState extends State<ImagePickerWidget> {
         return;
       }
 
-      // Upload image with progress tracking
       final updatedProfile = await _profileService.uploadProfileImageWithProgress(
         imageFile,
         (progress) {

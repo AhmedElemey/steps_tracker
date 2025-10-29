@@ -1,7 +1,6 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 
-/// Service to test Firebase Storage connectivity and configuration
 class StorageTestService {
   static final StorageTestService _instance = StorageTestService._internal();
   factory StorageTestService() => _instance;
@@ -9,20 +8,16 @@ class StorageTestService {
 
   final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  /// Test Firebase Storage connectivity
   Future<bool> testStorageConnection() async {
     try {
       debugPrint('Testing Firebase Storage connection...');
       
-      // Get storage reference
       final ref = _storage.ref();
       debugPrint('Storage reference created successfully');
       
-      // Get storage bucket
       final bucket = ref.bucket;
       debugPrint('Storage bucket: $bucket');
       
-      // Test if we can access the root
       final rootRef = _storage.ref().child('test');
       debugPrint('Root reference created: ${rootRef.fullPath}');
       
@@ -34,12 +29,10 @@ class StorageTestService {
     }
   }
 
-  /// Test creating a simple file reference
   Future<bool> testCreateReference() async {
     try {
       debugPrint('Testing file reference creation...');
       
-      // Create a test reference
       final testRef = _storage.ref().child('test/connection_test.txt');
       debugPrint('Test reference created: ${testRef.fullPath}');
       
@@ -51,7 +44,6 @@ class StorageTestService {
     }
   }
 
-  /// Run all storage tests
   Future<Map<String, bool>> runAllTests() async {
     debugPrint('🧪 Running Firebase Storage tests...');
     

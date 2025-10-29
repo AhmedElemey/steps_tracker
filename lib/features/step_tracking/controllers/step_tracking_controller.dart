@@ -24,7 +24,6 @@ class StepTrackingController extends ChangeNotifier {
   bool _isCalibrated = false;
   double _sensitivity = 0.5;
 
-  // Getters
   int get currentSteps => _currentSteps;
   int get targetSteps => _targetSteps;
   double get progress => _progress;
@@ -36,7 +35,6 @@ class StepTrackingController extends ChangeNotifier {
   bool get isCalibrated => _isCalibrated;
   double get sensitivity => _sensitivity;
 
-  // Stream subscriptions
   StreamSubscription<int>? _stepsSubscription;
   StreamSubscription<PedestrianStatus>? _statusSubscription;
   StreamSubscription<WalkingStateData>? _walkingStateSubscription;
@@ -47,16 +45,12 @@ class StepTrackingController extends ChangeNotifier {
 
   Future<void> _initialize() async {
     try {
-      // Load target steps from goals
       await _loadTargetSteps();
       
-      // Load step history
       await _loadStepHistory();
       
-      // Sync background steps first
       await _stepTrackingService.syncBackgroundSteps();
       
-      // Start listening to step updates
       _stepsSubscription = _stepTrackingService.stepsStream.listen(
         _onStepsUpdate,
         onError: _onError,
@@ -72,7 +66,6 @@ class StepTrackingController extends ChangeNotifier {
         onError: _onError,
       );
 
-      // Get current steps
       _currentSteps = _stepTrackingService.currentSteps;
       _updateProgress();
       notifyListeners();
@@ -87,7 +80,6 @@ class StepTrackingController extends ChangeNotifier {
     _updateProgress();
     notifyListeners();
     
-    // Save to Firestore every 100 steps or every 5 minutes
     _saveStepsToFirestore();
   }
 
@@ -121,7 +113,6 @@ class StepTrackingController extends ChangeNotifier {
         _targetSteps = goal.targetSteps;
         _updateProgress();
       } else {
-        // Create a default goal if none exists
         await _goalsService.createGoal(
           targetSteps: 10000,
           targetCalories: 500,
@@ -192,7 +183,6 @@ class StepTrackingController extends ChangeNotifier {
       await _loadTargetSteps();
       await _loadStepHistory();
       
-      // Get current steps from service
       _currentSteps = _stepTrackingService.currentSteps;
       _updateProgress();
       notifyListeners();
@@ -208,7 +198,6 @@ class StepTrackingController extends ChangeNotifier {
       _targetSteps = newTarget;
       _updateProgress();
       
-      // Update goal in database
       await _goalsService.updateActiveGoalSteps(newTarget);
       notifyListeners();
     } catch (e) {
@@ -240,7 +229,6 @@ class StepTrackingController extends ChangeNotifier {
     return remaining > 0 ? remaining.toString() : '0';
   }
 
-  // Advanced step detection methods
   Future<void> startCalibration() async {
     try {
       _errorMessage = '';
@@ -297,7 +285,6 @@ class StepTrackingController extends ChangeNotifier {
   Stream<CalibrationProgress> get calibrationProgressStream => _stepTrackingService.calibrationProgressStream;
   Stream<CalibrationResult> get calibrationResultStream => _stepTrackingService.calibrationResultStream;
 
-  // Background tracking methods
   Future<void> syncBackgroundSteps() async {
     await _stepTrackingService.syncBackgroundSteps();
     _currentSteps = _stepTrackingService.currentSteps;

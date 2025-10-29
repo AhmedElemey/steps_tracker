@@ -20,7 +20,6 @@ class AuthPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // App logo and title
                   Container(
                     padding: const EdgeInsets.all(32),
                     decoration: BoxDecoration(
@@ -73,7 +72,6 @@ class AuthPage extends StatelessWidget {
                   
                   const SizedBox(height: 48),
                   
-                  // Features list
                   Container(
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
@@ -125,7 +123,6 @@ class AuthPage extends StatelessWidget {
                   
                   const SizedBox(height: 32),
                   
-                  // Error message
                   if (authController.errorMessage.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -151,7 +148,6 @@ class AuthPage extends StatelessWidget {
                   if (authController.errorMessage.isNotEmpty)
                     const SizedBox(height: 16),
                   
-                  // Sign in button
                   ElevatedButton(
                     onPressed: authController.isLoading ? null : () => _signInAnonymously(context),
                     style: ElevatedButton.styleFrom(
@@ -182,7 +178,6 @@ class AuthPage extends StatelessWidget {
                   
                   const SizedBox(height: 16),
                   
-                  // Info text
                   Text(
                     'Sign in anonymously to start tracking your steps',
                     style: TextStyle(
@@ -228,7 +223,6 @@ class AuthPage extends StatelessWidget {
     final success = await authController.signInAnonymously();
     
     if (success && context.mounted) {
-      // Navigate to profile form
       Navigator.of(context).pushReplacementNamed('/profile-form');
     }
   }
